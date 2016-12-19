@@ -1,7 +1,7 @@
-from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from __future__ import absolute_import
 import tensorflow as tf
 
 from tensorflow.contrib.slim.nets import resnet_v1
@@ -9,7 +9,7 @@ from tensorflow.contrib.slim.nets import resnet_v1
 slim = tf.contrib.slim
 
 
-def recurrent_model(net, hidden_units=512, num_classes=2):
+def recurrent_model(net, hidden_units=256, num_classes=2):
     """Complete me...
 
     Args:
@@ -48,8 +48,9 @@ def audio_model(inputs, conv_filters=40):
     audio_input = tf.reshape(inputs, [batch_size * seq_length, 1, num_features, 1])
 
     with slim.arg_scope([slim.layers.conv2d], padding='SAME'):
-        net = slim.dropout(audio_input)
+        net = slim.batch_norm(audio_input)
         net = slim.layers.conv2d(net, conv_filters, (1, 20))
+        net = slim.batch_norm(net)
 
         # Subsampling of the signal to 8KhZ.
         net = tf.nn.max_pool(
