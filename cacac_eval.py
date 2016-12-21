@@ -20,8 +20,8 @@ tf.app.flags.DEFINE_string('pretrained_model_checkpoint_path', '',
 tf.app.flags.DEFINE_integer('batch_size', 15, '''The batch size to use.''')
 tf.app.flags.DEFINE_string('model', 'audio','''Which model is going to be used: audio,video, or both ''')
 tf.app.flags.DEFINE_string('dataset_dir', 'CACAC/tf_records', 'The tfrecords directory.')
-tf.app.flags.DEFINE_string('checkpoint_dir', './ckpt/train/', 'The tfrecords directory.')
-tf.app.flags.DEFINE_string('log_dir', './ckpt/logs/valid/', 'The tfrecords directory.')
+tf.app.flags.DEFINE_string('checkpoint_dir', './ckpt/cov_filt_40/', 'The tfrecords directory.')
+tf.app.flags.DEFINE_string('log_dir', './ckpt/cov_filt_40/valid/', 'The tfrecords directory.')
 tf.app.flags.DEFINE_string('num_examples', 3550, 'The number of examples in the test set')
 tf.app.flags.DEFINE_string('eval_interval_secs', 300, 'The number of examples in the test set')
 tf.app.flags.DEFINE_string('mode', 'devel', 'The number of examples in the test set')
@@ -39,6 +39,9 @@ def evaluate(data_folder):
                            is_training=False):
       predictions = models.get_model(FLAGS.model)(audio)
 
+      predictions = tf.cast(predictions,tf.bool)
+      labels = tf.cast(labels,tf.bool)
+      
       names_to_values, names_to_updates = slim.metrics.aggregate_metric_map({
           "eval/accuracy": slim.metrics.streaming_accuracy(predictions, labels),
          # "eval/TP": slim.metrics.streaming_true_positives(predictions, labels),
@@ -73,7 +76,7 @@ def evaluate(data_folder):
           FLAGS.checkpoint_dir,
           FLAGS.log_dir,
           num_evals=num_batches,
-          eval_op=names_to_updates.values(),
+          eval_op=names_to_updates.values()[0],
           summary_op=tf.summary.merge(summary_ops),
           eval_interval_secs=eval_interval_secs)
 
