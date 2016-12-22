@@ -21,7 +21,7 @@ tf.app.flags.DEFINE_string('pretrained_model_checkpoint_path', '',
                           '''before beginning any training.''')
 tf.app.flags.DEFINE_integer('batch_size', 30, '''The batch size to use.''')
 tf.app.flags.DEFINE_string('model', 'audio','''Which model is going to be used: audio,video, or both ''')
-tf.app.flags.DEFINE_string('dataset_dir', 'CACAC/tf_records', 'The tfrecords directory.')
+tf.app.flags.DEFINE_string('dataset_dir', '/vol/atlas/homes/gt108/db/CACAC/tf_records', 'The tfrecords directory.')
 tf.app.flags.DEFINE_string('checkpoint_dir', './ckpt/cov_filt_80/', 'The tfrecords directory.')
 tf.app.flags.DEFINE_string('log_dir', './ckpt/cov_filt_80/valid/', 'The tfrecords directory.')
 tf.app.flags.DEFINE_string('num_examples', 3550, 'The number of examples in the test set')
@@ -49,7 +49,9 @@ def evaluate(data_folder):
 
       saver = tf.train.Saver(variables_to_restore)
       model_path = slim.evaluation.tf_saver.get_checkpoint_state(FLAGS.checkpoint_dir).model_checkpoint_path
-     
+      m_path = tf.train.latest_checkpoint(FLAGS.checkpoint_dir)
+      print('model_path : {}'.format(model_path))
+      print('m_path : {}'.format(m_path))
       saver.restore(sess, model_path)        
       _ = tf.train.start_queue_runners(sess=sess)
 
@@ -94,6 +96,11 @@ def evaluate(data_folder):
       print('UAR: {}'.format(uar))
 
         
+
+
+
+
+
 def main(_):
     evaluate(FLAGS.dataset_dir)
 
