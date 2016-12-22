@@ -15,9 +15,9 @@ FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_float('initial_learning_rate', 0.0001, 'Initial learning rate.')
 tf.app.flags.DEFINE_float('num_epochs_per_decay', 5.0, 'Epochs after which learning rate decays.')
 tf.app.flags.DEFINE_float('learning_rate_decay_factor', 0.97, 'Learning rate decay factor.')
-tf.app.flags.DEFINE_integer('batch_size', 15, '''The batch size to use.''')
+tf.app.flags.DEFINE_integer('batch_size', 30, '''The batch size to use.''')
 tf.app.flags.DEFINE_integer('num_preprocess_threads', 4, 'How many preprocess threads to use.')
-tf.app.flags.DEFINE_string('train_dir', 'ckpt/train',
+tf.app.flags.DEFINE_string('train_dir', 'ckpt/cov_filt_80',
                            '''Directory where to write event logs '''
                            '''and checkpoint.''')
 tf.app.flags.DEFINE_string('pretrained_model_checkpoint_path', '',
@@ -27,7 +27,7 @@ tf.app.flags.DEFINE_integer('max_steps', 100000, 'Number of batches to run.')
 tf.app.flags.DEFINE_string('train_device', '/gpu:0', 'Device to train with.')
 tf.app.flags.DEFINE_string('model', 'audio',
                            '''Which model is going to be used: audio,video, or both ''')
-tf.app.flags.DEFINE_string('dataset_dir', 'data', 'The tfrecords directory.')
+tf.app.flags.DEFINE_string('dataset_dir', '/vol/atlas/homes/gt108/db/CACAC/tf_records', 'The tfrecords directory.')
 
 def train(data_folder):
     g = tf.Graph()
