@@ -35,7 +35,7 @@ def recurrent_model(net, hidden_units=256, num_classes=2):
     return tf.reshape(prediction, (batch_size, num_classes))
 
 
-def audio_model(inputs, conv_filters=40):
+def audio_model(inputs, conv_filters=80):
     """Complete me...
 
     Args:
@@ -74,7 +74,7 @@ def audio_model(inputs, conv_filters=40):
             padding='SAME',
             name='pool2')
 
-    net = tf.reshape(net, (batch_size, seq_length, num_features // 2 * 4))
+    net = tf.reshape(net, (batch_size, seq_length, num_features // 2 * 8))
 
     return net
 
