@@ -15,13 +15,14 @@ _split_to_num_samples = {
 }
 
 def get_split(dataset_dir, split_name='train', batch_size=32):
-    """Returns a data split of the RECOLA dataset.
+    """Returns a data split of the dataset.
     
     Args:
+        dataset_dir: The directory that contains the data.
         split_name: A train/test/valid split name.
+        batch_size: The size of the batch.
     Returns:
-        The raw audio examples and the corresponding arousal/valence
-        labels.
+        The raw audio examples and the corresponding labels.
     """
     path = Path(dataset_dir) / '{}.tfrecords'.format(split_name)
     paths = [str(path)]
