@@ -30,6 +30,12 @@ tf.app.flags.DEFINE_string('model', 'audio',
 tf.app.flags.DEFINE_string('dataset_dir', 'tf_records', 'The tfrecords directory.')
 
 def train(data_folder):
+    """Trains the audio model.
+    
+    Args:
+       data_folder: The folder that contains the training data.
+    """
+    
     g = tf.Graph()
     with g.as_default():
         # Load dataset.
