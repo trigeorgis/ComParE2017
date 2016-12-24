@@ -35,7 +35,7 @@ def recurrent_model(net, hidden_units=256, num_classes=2):
     return tf.reshape(prediction, (batch_size, num_classes))
 
 
-def audio_model(inputs, conv_filters=80):
+def audio_model(inputs, conv_filters=20):
     """Complete me...
 
     Args:
@@ -45,36 +45,21 @@ def audio_model(inputs, conv_filters=80):
     batch_size, _, num_features = inputs.get_shape().as_list()
     seq_length = tf.shape(inputs)[1]
 
-    audio_input = tf.reshape(inputs, [batch_size * seq_length, 1, num_features, 1])
+    net = tf.reshape(inputs, [batch_size * seq_length, 1, num_features, 1])
+    
+    with slim.arg_scope([slim.layers.conv2d],
+                         padding='SAME', activation_fn=slim.batch_norm):
+        for i in range(4):
+            net = slim.layers.conv2d(net, conv_filters, (1, 20))
 
-    with slim.arg_scope([slim.layers.conv2d], padding='SAME'):
-        net = slim.batch_norm(audio_input)
-        net = slim.layers.conv2d(net, conv_filters, (1, 20))
-        net = slim.batch_norm(net)
+            net = tf.nn.max_pool(
+                net,
+                ksize=[1, 1, 3, 1],
+                strides=[1, 1, 3, 1],
+                padding='SAME',
+                name='pool1')
 
-        # Subsampling of the signal to 8KhZ.
-        net = tf.nn.max_pool(
-            net,
-            ksize=[1, 1, 2, 1],
-            strides=[1, 1, 2, 1],
-            padding='SAME',
-            name='pool1')
-
-        # Original model had 400 output filters for the second conv layer
-        # but this trains much faster and achieves comparable accuracy.
-        net = slim.layers.conv2d(net, conv_filters, (1, 40))
-
-        net = tf.reshape(net, (batch_size * seq_length, num_features // 2, conv_filters, 1))
-
-        # Pooling over the feature maps.
-        net = tf.nn.max_pool(
-            net,
-            ksize=[1, 1, 10, 1],
-            strides=[1, 1, 10, 1],
-            padding='SAME',
-            name='pool2')
-
-    net = tf.reshape(net, (batch_size, seq_length, num_features // 2 * 8))
+    net = tf.reshape(net, (batch_size, seq_length, num_features // 4))
 
     return net
 
