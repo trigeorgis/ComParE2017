@@ -25,6 +25,11 @@ def read_wav_file(wav_file):
     data = np.fromstring(dstr, np.int16)
     audio = np.reshape(data, (-1))
 
+    # normalize audio input
+    #m = np.mean(audio)
+    #std = np.std(audio)
+    #audio = (audio-m)/std
+
     audio = np.pad(audio, (0, 640 - audio.shape[0] % 640), 'constant')
     audio = audio.reshape(-1, 640)
 
