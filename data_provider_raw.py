@@ -10,32 +10,39 @@ from pathlib import Path
 
 
 def read_wav_file(wav_file):
-    """Read a wav file.
-    
-    Args:
-        wav_file: The name of the wav file
-    Returns:
-        The audio data.
-    """
+  """Read a wav file.
+  
+  Args:
+      wav_file: The name of the wav file
+  Returns:
+      The audio data.
+  """
 
-    fp = wave.open(str(wav_file))
-    nchan = fp.getnchannels()
-    N = fp.getnframes()
-    dstr = fp.readframes(N*nchan)
-    data = np.fromstring(dstr, np.int16)
-    audio = np.reshape(data, (-1))
+  fp = wave.open(str(wav_file))
+  nchan = fp.getnchannels()
+  N = fp.getnframes()
+  dstr = fp.readframes(N*nchan)
+  data = np.fromstring(dstr, np.int16)
+  audio = np.reshape(data, (-1))
 
-    # normalize audio input
-    #m = np.mean(audio)
-    #std = np.std(audio)
-    #audio = (audio-m)/std
+  # normalize audio input
+  #m = np.mean(audio)
+  #std = np.std(audio)
+  #audio = (audio-m)/std
 
-    audio = np.pad(audio, (0, 640 - audio.shape[0] % 640), 'constant')
-    audio = audio.reshape(-1, 640)
+  audio = np.pad(audio, (0, 640 - audio.shape[0] % 640), 'constant')
+  audio = audio.reshape(-1, 640)
 
-    return audio
+  return audio
 
 def encoder(labels):
+  """ Returns one hot encoding of the binary labels.
+  
+  Args:
+      labels: The binary labels.
+  Returns:
+      One hot encoding of the labels.
+  """
 
   data = []
   for i in range(len(labels)):
@@ -48,6 +55,14 @@ def encoder(labels):
   return data
 
 def get_split(dataset_dir, split_name='train'):
+  """ Returns the audio input and labels. 
+  
+  Args:
+      dataset_dir: The directory that contains the data.
+      split_name: A train/test/valid split name.
+  Returns:
+      The raw audio examples and the corresponding labels.
+  """
 
   with open('CACAC/labels.txt') as f:
     reader = csv.reader(f, delimiter=";")
