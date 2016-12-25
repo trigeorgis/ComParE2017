@@ -73,10 +73,12 @@ def audio_model(inputs, conv_filters=20):
 
 
 def get_model(name):
-    """Complete me...
+    """ Returns the recurrent audio model.
 
     Args:
+        name: The model to return. Here only 'audio'.
     Returns:
+        The recurrent audio model.
     """
     name_to_fun = {'audio': audio_model}
 
