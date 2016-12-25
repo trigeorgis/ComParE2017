@@ -54,10 +54,13 @@ def get_split(dataset_dir, split_name='train'):
   labels = encoder(labels)
 
   data = []
+  #lab = []
   for i in range(len(audio_files)):
     wav = read_wav_file(audio_files[i])
+    #lab.append(np.repeat([labels[i,:]], wav.shape[0], axis=0))
     data.append(wav)
   
   data = np.vstack(data)
-  
+  #labels = np.vstack(lab)
+
   return data, labels
