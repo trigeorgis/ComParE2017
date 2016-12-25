@@ -50,7 +50,7 @@ def get_split(dataset_dir, split_name='train'):
 
   files = [(x) for x in files if split_name in x[1]]
   audio_files = [Path(dataset_dir) / split_name / str(x[0]) for x in files]
-  labels = [str(x[2]) =='CDS' for x in files if str(x[1]) in split_name]
+  labels = [str(x[2]) =='CDS' for x in files]
   labels = encoder(labels)
 
   data = []
