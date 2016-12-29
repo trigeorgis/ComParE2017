@@ -14,9 +14,6 @@ from tensorflow.python.platform import tf_logging as logging
 slim = tf.contrib.slim
 
 FLAGS = tf.app.flags.FLAGS
-tf.app.flags.DEFINE_string('pretrained_model_checkpoint_path', '',
-                          '''If specified, restore this pretrained model '''
-                          '''before beginning any training.''')
 tf.app.flags.DEFINE_integer('batch_size', 1, '''The batch size to use.''')
 tf.app.flags.DEFINE_string('model', 'audio','''Which model is going to be used: audio,video, or both ''')
 tf.app.flags.DEFINE_string('dataset_dir', 'CACAC/tf_records', 'The tfrecords directory.')
@@ -26,13 +23,12 @@ tf.app.flags.DEFINE_integer('num_examples', None, 'The number of examples in the
 tf.app.flags.DEFINE_string('eval_interval_secs', 300, 'The number of examples in the test set')
 tf.app.flags.DEFINE_string('portion', 'devel', 'The portion of the dataset to use -- `train`, `devel`, or `test`.')
 
-
 def evaluate(data_folder):
-    """Evaluates the audio model.
-    
-    Args:
-       data_folder: The folder that contains the data to evaluate the audio model.
-    """
+  """Evaluates the audio model.
+  
+  Args:
+     data_folder: The folder that contains the data to evaluate the audio model.
+  """
     
   g = tf.Graph()
   with g.as_default():
@@ -51,7 +47,7 @@ def evaluate(data_folder):
       })
 
       summary_ops = []
-      # Create the summary ops such that they also print out to std output:
+      # Create the summary ops such that they also print out to std output.
       for name, value in names_to_values.items():
           op = tf.summary.scalar(name, value)
           op = tf.Print(op, [value], name)
@@ -76,8 +72,6 @@ def evaluate(data_folder):
           eval_op=list(names_to_updates.values()),
           summary_op=tf.merge_summary(summary_ops),
           eval_interval_secs=eval_interval_secs)
-
-
 
 def main(_):
     evaluate(FLAGS.dataset_dir)
