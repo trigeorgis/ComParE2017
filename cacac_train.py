@@ -39,7 +39,7 @@ def train(data_folder):
   g = tf.Graph()
   with g.as_default():
       # Load dataset.
-      audio, ground_truth = data_provider.get_split(data_folder, 'train', FLAGS.batch_size)
+      audio, ground_truth, _ = data_provider.get_split(data_folder, 'train', FLAGS.batch_size)
 
       # Define model graph.
       with slim.arg_scope([slim.batch_norm, slim.layers.dropout],
