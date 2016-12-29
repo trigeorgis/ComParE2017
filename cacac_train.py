@@ -3,14 +3,13 @@ from __future__ import division
 from __future__ import print_function
 
 import tensorflow as tf
-import data_provider as data_provider
+import data_provider
 import models
 
 from tensorflow.python.platform import tf_logging as logging
 
 slim = tf.contrib.slim
 
-# Create FLAGS
 FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_float('initial_learning_rate', 0.0001, 'Initial learning rate.')
 tf.app.flags.DEFINE_float('num_epochs_per_decay', 5.0, 'Epochs after which learning rate decays.')
@@ -35,6 +34,7 @@ def train(data_folder):
   Args:
      data_folder: The folder that contains the training data.
   """  
+
   g = tf.Graph()
   with g.as_default():
       # Load dataset.
