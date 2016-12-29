@@ -60,10 +60,6 @@ def get_split(dataset_dir, split_name='train', batch_size=32):
     frames, labels = tf.train.batch([raw_audio, label], batch_size,
                                     capacity=1000, dynamic_pad=True)
 
-    # 640 samples at 16KhZ corresponds to 40ms.
-    raw_audio.set_shape([640])
-    label.set_shape([])
-
 
     frames = tf.reshape(frames, (batch_size, -1, 640))
     labels = slim.one_hot_encoding(labels, 2)
