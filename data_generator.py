@@ -5,6 +5,12 @@ import argparse
 from moviepy.editor import AudioFileClip
 from pathlib import Path
 
+# Create FLAGS
+FLAGS = tf.app.flags.FLAGS
+tf.app.flags.DEFINE_string('db_folder', 'CACAC/all/', 'The folder that contains the wav files.')
+tf.app.flags.DEFINE_string('labels_folder', 'CACAC/', 'The folder that contains the labels.txt file.')
+tf.app.flags.DEFINE_string('tf_folder', 'CACAC/all/tf_records', 'The folder to write the tf records.')
+
 def get_labels(root_dir):
   root_dir = Path(root_dir)
   with open((root_dir / 'labels.txt').as_posix()) as f:
@@ -57,12 +63,4 @@ def main(data_folder, labels_file, tfrecords_folder):
     writer.close()
 
 if __name__ == '__main__':
-  parser = argparse.ArgumentParser()
-  parser.add_argument("-d", "--dbfolder", help="The folder that contains the wav fiels", type=str, default=".")
-  parser.add_argument("-l", "--lbfolder", help="The folder that contains the labels.txt file", type=str, default=".")
-  parser.add_argument("-w", "--tffolder", help="The folder to write the tf records", type=str, default=".")
-  args = parser.parse_args()
-
-  main(args.dbfolder, args.lbfolder, args.tffolder)
-
-  
+  main(FLAGS.db_folder, FLAGS.labels_folder, FLAGS.tf_folder)
