@@ -26,7 +26,7 @@ tf.app.flags.DEFINE_integer('max_steps', 100000, 'Number of batches to run.')
 tf.app.flags.DEFINE_string('train_device', '/gpu:0', 'Device to train with.')
 tf.app.flags.DEFINE_string('model', 'audio',
                            '''Which model is going to be used: audio,video, or both ''')
-tf.app.flags.DEFINE_string('dataset_dir', 'CACAC/tf_records/', 'The tfrecords directory.')
+tf.app.flags.DEFINE_string('dataset_dir', 'CACAC/tf_records_2/', 'The tfrecords directory.')
 
 def train(data_folder):
   """Trains the audio model.
@@ -37,37 +37,36 @@ def train(data_folder):
 
   g = tf.Graph()
   with g.as_default():
-      # Load dataset.
-      audio, ground_truth, _ = data_provider.get_split(data_folder, 'train', FLAGS.batch_size)
+    # Load dataset.
+    audio, ground_truth, _ = data_provider.get_split(data_folder, 'train', FLAGS.batch_size)
 
-      # Define model graph.
-      with slim.arg_scope([slim.batch_norm, slim.layers.dropout],
-                          is_training=True):
-          prediction = models.get_model(FLAGS.model)(audio)
+    # Define model graph.
+    with slim.arg_scope([slim.batch_norm, slim.layers.dropout],
+                        is_training=True):
+        prediction = models.get_model(FLAGS.model)(audio)
 
-      slim.losses.softmax_cross_entropy(prediction, ground_truth)
-      
-      total_loss =  slim.losses.get_total_loss()
-      tf.scalar_summary('losses/total loss', total_loss)
+    slim.losses.softmax_cross_entropy(prediction, ground_truth)
+    
+    total_loss =  slim.losses.get_total_loss()
+    tf.scalar_summary('losses/total loss', total_loss)
 
-      optimizer = tf.train.AdamOptimizer(FLAGS.initial_learning_rate)
+    optimizer = tf.train.AdamOptimizer(FLAGS.initial_learning_rate)
 
-      with tf.Session(graph=g) as sess:
-          if FLAGS.pretrained_model_checkpoint_path:
-              variables_to_restore = slim.get_variables_to_restore()
-              saver = tf.train.Saver(variables_to_restore)
-              saver.restore(sess, FLAGS.pretrained_model_checkpoint_path)
+    with tf.Session(graph=g) as sess:
+        if FLAGS.pretrained_model_checkpoint_path:
+            variables_to_restore = slim.get_variables_to_restore()
+            saver = tf.train.Saver(variables_to_restore)
+            saver.restore(sess, FLAGS.pretrained_model_checkpoint_path)
 
-          train_op = slim.learning.create_train_op(total_loss,
-                                                   optimizer,
-                                                   summarize_gradients=True)
+        train_op = slim.learning.create_train_op(total_loss,
+                                                 optimizer,
+                                                 summarize_gradients=True)
 
-          logging.set_verbosity(1)
-          slim.learning.train(train_op,
-                              FLAGS.train_dir,
-                              save_summaries_secs=60,
-                              save_interval_secs=600)
-
+        logging.set_verbosity(1)
+        slim.learning.train(train_op,
+                            FLAGS.train_dir,
+                            save_summaries_secs=60,
+                            save_interval_secs=600)
 
 if __name__ == '__main__':
   train(FLAGS.dataset_dir)
