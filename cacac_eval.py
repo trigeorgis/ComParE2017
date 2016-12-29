@@ -28,7 +28,12 @@ tf.app.flags.DEFINE_string('portion', 'devel', 'The portion of the dataset to us
 
 
 def evaluate(data_folder):
-
+    """Evaluates the audio model.
+    
+    Args:
+       data_folder: The folder that contains the data to evaluate the audio model.
+    """
+    
   g = tf.Graph()
   with g.as_default():
     

@@ -10,11 +10,16 @@ slim = tf.contrib.slim
 
 
 def recurrent_model(net, hidden_units=256, num_classes=2):
-    """Complete me...
+    """Adds the LSTM network on top of the static audio model.
 
     Args:
+       net: A `Tensor` of dimensions [batch_size, seq_length, num_features]
+       hidden_units: The number of hidden units of the LSTM cell.
+       num_classes: The number of classes.
     Returns:
+        The prediction of the network.
     """
+    
     batch_size, seq_length, num_features = net.get_shape().as_list()
 
     lstm = tf.nn.rnn_cell.LSTMCell(hidden_units,
@@ -36,10 +41,13 @@ def recurrent_model(net, hidden_units=256, num_classes=2):
 
 
 def audio_model(inputs, conv_filters=20):
-    """Complete me...
+    """Creates the audio model.
 
     Args:
+        inputs: A tensor that contains the audio input.
+        conv_filters: The number of convolutional filters to use.
     Returns:
+        The audio model.
     """
 
     batch_size, _, num_features = inputs.get_shape().as_list()
@@ -65,10 +73,12 @@ def audio_model(inputs, conv_filters=20):
 
 
 def get_model(name):
-    """Complete me...
+    """ Returns the recurrent audio model.
 
     Args:
+        name: The model to return. Here only 'audio'.
     Returns:
+        The recurrent audio model.
     """
     name_to_fun = {'audio': audio_model}
 

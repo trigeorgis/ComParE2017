@@ -26,7 +26,11 @@ tf.app.flags.DEFINE_string('eval_interval_secs', 300, 'The number of examples in
 tf.app.flags.DEFINE_string('portion', 'devel', 'The portion of the dataset to use -- `train`, `devel`, or `test`.')
 
 def evaluate(data_folder):
-
+    """Evaluates the model once. Prints in terminal the Accuracy and the UAR of the audio model.
+    
+    Args:
+       data_folder: The folder that contains the test data.
+    """
   g = tf.Graph()
   with g.as_default():
     
