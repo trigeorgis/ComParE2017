@@ -50,7 +50,7 @@ def evaluate(data_folder):
     saver = tf.train.Saver(variables_to_restore)
     model_path = tf.train.latest_checkpoint(FLAGS.checkpoint_dir)
     print('Loading model from {}'.format(model_path))
-
+    
     with tf.Session() as sess:
         saver.restore(sess, model_path)  
         tf.train.start_queue_runners(sess=sess)

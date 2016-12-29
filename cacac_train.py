@@ -15,7 +15,7 @@ FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_float('initial_learning_rate', 0.001, 'Initial learning rate.')
 tf.app.flags.DEFINE_float('num_epochs_per_decay', 5.0, 'Epochs after which learning rate decays.')
 tf.app.flags.DEFINE_float('learning_rate_decay_factor', 0.97, 'Learning rate decay factor.')
-tf.app.flags.DEFINE_integer('batch_size', 30, '''The batch size to use.''')
+tf.app.flags.DEFINE_integer('batch_size', 20, '''The batch size to use.''')
 tf.app.flags.DEFINE_integer('num_preprocess_threads', 4, 'How many preprocess threads to use.')
 tf.app.flags.DEFINE_string('train_dir', 'ckpt/train',
                            '''Directory where to write event logs '''
@@ -23,17 +23,19 @@ tf.app.flags.DEFINE_string('train_dir', 'ckpt/train',
 tf.app.flags.DEFINE_string('pretrained_model_checkpoint_path', '',
                            '''If specified, restore this pretrained model '''
                            '''before beginning any training.''')
-tf.app.flags.DEFINE_integer('max_steps', 100000, 'Number of batches to run.')
+tf.app.flags.DEFINE_integer('max_steps', 40000, 'Number of batches to run.')
 tf.app.flags.DEFINE_string('train_device', '/gpu:0', 'Device to train with.')
 tf.app.flags.DEFINE_string('model', 'audio',
                            '''Which model is going to be used: audio,video, or both ''')
 tf.app.flags.DEFINE_string('dataset_dir', 'tf_records', 'The tfrecords directory.')
+tf.app.flags.DEFINE_string('portion', 'train,devel', 'The portion(s) to train on, delimitered by comma.')
+
 
 def train(data_folder):
     g = tf.Graph()
     with g.as_default():
         # Load dataset.
-        audio, ground_truth, _ = data_provider.get_split(data_folder, 'train', FLAGS.batch_size)
+        audio, ground_truth, _ = data_provider.get_split(data_folder, FLAGS.portion, FLAGS.batch_size)
 
         # Define model graph.
         with slim.arg_scope([slim.batch_norm, slim.layers.dropout],
@@ -60,6 +62,7 @@ def train(data_folder):
             logging.set_verbosity(1)
             slim.learning.train(train_op,
                                 FLAGS.train_dir,
+                                number_of_steps=FLAGS.max_steps,
                                 save_summaries_secs=60,
                                 save_interval_secs=600)
 

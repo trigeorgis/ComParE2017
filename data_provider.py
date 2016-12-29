@@ -23,10 +23,11 @@ def get_split(dataset_dir, split_name='train', batch_size=32):
         The raw audio examples and the corresponding arousal/valence
         labels.
     """
-    path = Path(dataset_dir) / '{}.tfrecords'.format(split_name)
-    paths = [str(path)]
+    
+    paths = [str(Path(dataset_dir) / '{}.tfrecords'.format(name)) 
+             for name in split_name.split(',')]
 
-    is_training = split_name == 'train'
+    is_training = 'train' in split_name
 
     filename_queue = tf.train.string_input_producer(paths, shuffle=is_training)
 
@@ -54,7 +55,7 @@ def get_split(dataset_dir, split_name='train', batch_size=32):
     raw_audio = tf.decode_raw(raw_audio, tf.float32)
 
     if is_training:
-        raw_audio += tf.random_normal(tf.shape(raw_audio), stddev=.4)
+        raw_audio += tf.random_normal(tf.shape(raw_audio), stddev=.25)
 
     frames, labels = tf.train.batch([raw_audio, label], batch_size,
                                     capacity=1000, dynamic_pad=True)
@@ -67,4 +68,4 @@ def get_split(dataset_dir, split_name='train', batch_size=32):
     frames = tf.reshape(frames, (batch_size, -1, 640))
     labels = slim.one_hot_encoding(labels, 2)
     
-    return frames, labels, _split_to_num_samples[split_name]
+    return frames, labels, sum(_split_to_num_samples[name] for name in split_name.split(','))
