@@ -68,7 +68,6 @@ def evaluate(data_folder):
       # How often to run the evaluation.
       eval_interval_secs = FLAGS.eval_interval_secs 
         
-      print(dir(tf.summary))
       slim.evaluation.evaluation_loop(
           '',
           FLAGS.checkpoint_dir,
