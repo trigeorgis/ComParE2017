@@ -22,20 +22,33 @@ def get_labels(root_dir):
   return labels
 
 def get_audio(wav_file, root_dir):
-  """Read a wav file.
+  """Reads a wav file and splits it in chunks of 40ms. 
+  Pads with zeros if duration does not fit exactly the 40ms chunks.
+  Assumptions: 
+      A. wav file has one channel.
+      B. wav file has 16KHz fps.
   
   Args:
-      wav_file: The name of the wav file
+      wav_file: The name of the wav file.
+      root_dir: The directory were the wav file is.
   Returns:
-      The audio data.
+      A data array, where each row corresponds to a 40ms chunk.
   """
 
   fp = wave.open(str(root_dir / wav_file))
   nchan = fp.getnchannels()
+  fps = fp.getframerate()
+
+  if nchan > 1:
+    raise TypeError('The wav file should have 1 channel. [{}] found'.format(n.format(nchan)))
+  if fps != 16000:
+    raise TypeError('The wav file should have 16000 fps. [{}] found'.format(n.format(fps)))
+
   N = fp.getnframes()
   dstr = fp.readframes(N*nchan)
   data = np.fromstring(dstr, np.int16)
   audio = np.reshape(data, (-1))
+  audio = (1.0*audio) / 2**(2*8-1) # Normalize audio data.
 
   audio = np.pad(audio, (0, 640 - audio.shape[0] % 640), 'constant')
   audio = audio.reshape(-1, 640)
