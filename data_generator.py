@@ -40,9 +40,9 @@ def get_audio(wav_file, root_dir):
   fps = fp.getframerate()
 
   if nchan > 1:
-    raise ValueError('The wav file should have 1 channel. [{}] found'.format(n.format(nchan)))
+    raise ValueError('The wav file should have 1 channel. [{}] found'.format(nchan))
   if fps != 16000:
-    raise ValueError('The wav file should have 16000 fps. [{}] found'.format(n.format(fps)))
+    raise ValueError('The wav file should have 16000 fps. [{}] found'.format(fps))
 
   N = fp.getnframes()
   dstr = fp.readframes(N*nchan)
