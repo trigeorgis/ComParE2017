@@ -32,7 +32,7 @@ def get_audio(wav_file, root_dir):
       wav_file: The name of the wav file.
       root_dir: The directory were the wav file is.
   Returns:
-      A data array, where each row corresponds to a 40ms chunk.
+      A data array, where each row corresponds to 40ms.
   """
 
   fp = wave.open(str(root_dir / wav_file))
