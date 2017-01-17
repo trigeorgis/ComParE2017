@@ -6,9 +6,6 @@ import tensorflow as tf
 import data_provider
 import models
 
-from menpo.visualize import print_progress
-from pathlib import Path
-
 from tensorflow.python.ops import sparse_ops
 from tensorflow.python.ops import state_ops
 from tensorflow.python.ops import variables
@@ -19,6 +16,11 @@ from tensorflow.python.ops import math_ops
 from tensorflow.python.ops import array_ops
 from tensorflow.python.platform import tf_logging as logging
 from tensorflow.python.ops import variable_scope
+from tensorflow.python.ops import check_ops
+#from tensorflow.python.ops import metrics as metrs
+
+from menpo.visualize import print_progress
+from pathlib import Path
 
 slim = tf.contrib.slim
 
@@ -27,7 +29,7 @@ tf.app.flags.DEFINE_integer('batch_size', 15, '''The batch size to use.''')
 tf.app.flags.DEFINE_string('model', 'audio','''Which model is going to be used: audio,video, or both ''')
 tf.app.flags.DEFINE_string('dataset_dir', '/vol/atlas/homes/pt511/db/URTIC/tf_records', 'The tfrecords directory.')
 tf.app.flags.DEFINE_string('checkpoint_dir', '/vol/atlas/homes/pt511/ckpt/Interspeech2017/train_original_2/', 'The tfrecords directory.')
-tf.app.flags.DEFINE_string('log_dir', '/vol/atlas/homes/pt511/ckpt/Interspeech2017/train_original_2/', 'The tfrecords directory.')
+tf.app.flags.DEFINE_string('log_dir', '/vol/atlas/homes/pt511/ckpt/Interspeech2017/test/', 'The tfrecords directory.')
 tf.app.flags.DEFINE_integer('num_examples', None, 'The number of examples in the test set')
 tf.app.flags.DEFINE_string('eval_interval_secs', 300, 'The number of examples in the test set')
 tf.app.flags.DEFINE_string('portion', 'devel', 'The portion of the dataset to use -- `train`, `devel`, or `test`.')
@@ -55,7 +57,7 @@ def evaluate(data_folder):
 
       names_to_values, names_to_updates = slim.metrics.aggregate_metric_map({
           "eval/accuracy": slim.metrics.streaming_accuracy(pred_argmax, lab_argmax),
-          "eval/UAR": UAR(pred_argmax, lab_argmax)
+          "eval/UAR": slim.metrics.streaming_mean(UAR(pred_argmax, lab_argmax))
       })
 
       summary_ops = []
@@ -87,27 +89,37 @@ def evaluate(data_folder):
 
 def UAR(labels, predictions):
 
-  predictions.get_shape().assert_is_compatible_with(labels.get_shape())
-
-  if labels.dtype != predictions.dtype:
-    predictions = math_ops.cast(predictions, labels.dtype)
-  
   lab_1 = tf.equal(labels, tf.ones_like(labels))
   lab_0 = tf.equal(labels, tf.zeros_like(labels))
 
   pred_1 = tf.equal(predictions, tf.ones_like(predictions))
   pred_0 = tf.equal(predictions, tf.zeros_like(predictions))
 
-  tp1 = tf.reduce_sum(tf.cast(tf.logical_and(lab_1, pred_1), tf.float32))
-  fn1 = tf.reduce_sum(tf.cast(tf.logical_and(lab_1, pred_0), tf.float32))
+  true_p,  true_positives_update_op = _count_condition(tf.logical_and(lab_1, pred_1))
+  false_n, false_negatives_update_op = _count_condition(tf.logical_and(lab_1, pred_0))
 
-  tp2 = tf.reduce_sum(tf.cast(tf.logical_and(lab_0, pred_0), tf.float32))
-  fn2 = tf.reduce_sum(tf.cast(tf.logical_and(lab_0, pred_1), tf.float32))
+  true_n, true_negatives_update_op = _count_condition(tf.logical_and(lab_0, pred_0))
+  false_p, false_positives_update_op = _count_condition(tf.logical_and(lab_0, pred_1))
 
-  recall_1 = tp1/tf.maximum((tp1+fn1), tf.constant(0.00000000001, dtype=tf.float32))
-  recall_2 = tp2/tf.maximum((tp2+fn2), tf.constant(0.00000000001, dtype=tf.float32))
-   
-  return mean([recall_1, recall_2], 'UAR')
+  def compute_recall(true_p, false_n, name):
+    return array_ops.where(
+        math_ops.greater(true_p + false_n, 0),
+        math_ops.div(true_p, true_p + false_n),
+        0,
+        name)
+
+  recall_1 = compute_recall(true_p, false_n, 'value_1')
+  recall_1_update_op = compute_recall(true_positives_update_op, 
+                 false_negatives_update_op, 'update_op_1')
+
+  recall_2 = compute_recall(true_n, false_p, 'value_2')
+  recall_2_update_op = compute_recall(true_negatives_update_op, 
+                 false_positives_update_op, 'update_op_2')
+
+  mean_value = _safe_div(recall_1+recall_2, tf.cast(2, tf.float32), 'value')
+  mean_update_op = _safe_div(recall_1_update_op+recall_2_update_op, tf.cast(2, tf.float32),'update_op')
+
+  return mean_value, mean_update_op
 
 def mean(values, name=None):
   with variable_scope.variable_scope(name, 'mean', (values)):
@@ -162,6 +174,29 @@ def _create_local(name, shape, collections=None, validate_shape=True,
       trainable=False,
       collections=collections,
       validate_shape=validate_shape)
+
+def _count_condition(values, weights=None, metrics_collections=None,
+                     updates_collections=None):
+  check_ops.assert_type(values, dtypes.bool)
+  count = _create_local('count', shape=[])
+
+  values = math_ops.to_float(values)
+  if weights is not None:
+    with ops.control_dependencies((
+        check_ops.assert_rank_in(weights, (0, array_ops.rank(values))),)):
+      weights = math_ops.to_float(weights)
+      values = math_ops.multiply(values, weights)
+
+  value_tensor = array_ops.identity(count)
+  update_op = state_ops.assign_add(count, math_ops.reduce_sum(values))
+
+  if metrics_collections:
+    ops.add_to_collections(metrics_collections, value_tensor)
+
+  if updates_collections:
+    ops.add_to_collections(updates_collections, update_op)
+
+  return value_tensor, update_op
 
 def main(_):
     evaluate(FLAGS.dataset_dir)
