@@ -17,7 +17,6 @@ from tensorflow.python.ops import array_ops
 from tensorflow.python.platform import tf_logging as logging
 from tensorflow.python.ops import variable_scope
 from tensorflow.python.ops import check_ops
-#from tensorflow.python.ops import metrics as metrs
 
 from menpo.visualize import print_progress
 from pathlib import Path
@@ -121,32 +120,7 @@ def UAR(labels, predictions):
 
   return mean_value, mean_update_op
 
-def mean(values, name=None):
-  with variable_scope.variable_scope(name, 'mean', (values)):
-    values = math_ops.to_float(values)
-
-    total = _create_local('total', shape=[])
-    count = _create_local('count', shape=[])
-
-    num_values = math_ops.to_float(array_ops.size(values))
-
-    update_total_op = state_ops.assign_add(total, math_ops.reduce_sum(values))
-    update_count_op = state_ops.assign_add(count, num_values)
-
-    mean_t = _safe_div(total, count, 'value')
-    update_op = _safe_div(update_total_op, update_count_op, 'update_op')
-
-    return mean_t, update_op
-
 def _safe_div(numerator, denominator, name):
-  """Divides two values, returning 0 if the denominator is <= 0.
-  Args:
-    numerator: A real `Tensor`.
-    denominator: A real `Tensor`, with dtype matching `numerator`.
-    name: Name for the returned op.
-  Returns:
-    0 if `denominator` <= 0, else `numerator` / `denominator`
-  """
   return array_ops.where(
       math_ops.greater(denominator, 0),
       math_ops.truediv(numerator, denominator),
@@ -155,16 +129,6 @@ def _safe_div(numerator, denominator, name):
 
 def _create_local(name, shape, collections=None, validate_shape=True,
                   dtype=dtypes.float32):
-  """Creates a new local variable.
-  Args:
-    name: The name of the new or existing variable.
-    shape: Shape of the new or existing variable.
-    collections: A list of collection names to which the Variable will be added.
-    validate_shape: Whether to validate the shape of the variable.
-    dtype: Data type of the variables.
-  Returns:
-    The created variable.
-  """
   # Make sure local variables are added to tf.GraphKeys.LOCAL_VARIABLES
   collections = list(collections or [])
   collections += [ops.GraphKeys.LOCAL_VARIABLES]
