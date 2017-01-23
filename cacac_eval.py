@@ -23,7 +23,7 @@ tf.app.flags.DEFINE_string('log_dir', 'ckpt/conv_x1_reg_1rnn_w/', 'The tfrecords
 tf.app.flags.DEFINE_integer('num_examples', None, 'The number of examples in the test set')
 tf.app.flags.DEFINE_string('eval_interval_secs', 300, 'The number of examples in the test set')
 tf.app.flags.DEFINE_string('portion', 'devel', 'The portion of the dataset to use -- `train`, `devel`, or `test`.')
-#ckpt/conv_x1_reg_1rnn_w/
+
 def evaluate(data_folder):
   """Evaluates the audio model.
 
@@ -72,35 +72,8 @@ def evaluate(data_folder):
       num_batches = math.ceil(num_examples / float(FLAGS.batch_size))
       logging.set_verbosity(1)
 
-#      print(lab_argmax)
-#      print(labels)
-#      print(predictions)
-#      print(pred_argmax)
-
-      ''''
-      op = tf.summary.histogram('lab_argmax', lab_argmax)
-      op = tf.Print(op, [lab_argmax], 'lab_argmax', summarize=10)
-      summary_ops.append(op)
-
-      op = tf.summary.histogram('labels', labels)
-      op = tf.Print(op, [labels], 'labels', summarize=10)
-      summary_ops.append(op)
-
-      op = tf.summary.histogram('pred_argmax', pred_argmax)
-      op = tf.Print(op, [pred_argmax], 'pred_argmax', summarize=10)
-      summary_ops.append(op)
-
-      op = tf.summary.histogram('predictions', predictions)
-      op = tf.Print(op, [predictions], 'predictions', summarize=10)
-      summary_ops.append(op)
-
-      op = tf.summary.histogram('not_pred_argmax', not_pred_argmax)
-      op = tf.Print(op, [not_pred_argmax], 'not_pred_argmax', summarize=10)
-      summary_ops.append(op)
-      '''
-
       # Setup the global step.
-#      slim.get_or_create_global_step()
+      slim.get_or_create_global_step()
 
       # How often to run the evaluation.
       eval_interval_secs = FLAGS.eval_interval_secs 
