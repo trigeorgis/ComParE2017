@@ -7,6 +7,7 @@ import data_provider
 import models
 import numpy as np
 import sklearn.metrics as sm
+import math
 
 from pathlib import Path
 from menpo.visualize import print_progress
@@ -14,12 +15,12 @@ from menpo.visualize import print_progress
 slim = tf.contrib.slim
 
 FLAGS = tf.app.flags.FLAGS
-tf.app.flags.DEFINE_integer('batch_size', 1, '''The batch size to use.''')
+tf.app.flags.DEFINE_integer('batch_size', 15, '''The batch size to use.''')
 tf.app.flags.DEFINE_string('model', 'audio', 'Which model is going to be used: `audio`, `video`, or `both`.')
-tf.app.flags.DEFINE_string('dataset_dir', '/vol/atlas/homes/gt108/db/CACAC/tf_records', 'The tfrecords directory.')
-tf.app.flags.DEFINE_string('checkpoint_dir', './ckpt/train/', 'The tfrecords directory.')
-tf.app.flags.DEFINE_string('portion', 'devel', 'The portion of the dataset to use -- `train`, `devel`, or `test`.')
-
+tf.app.flags.DEFINE_string('dataset_dir', '/vol/atlas/homes/pt511/db/URTIC/tf_records', 'The tfrecords directory.')
+tf.app.flags.DEFINE_string('checkpoint_dir', 'ckpt/conv_x1_reg_1rnn_w/', 'The tfrecords directory.')
+tf.app.flags.DEFINE_string('portion', 'train', 'The portion of the dataset to use -- `train`, `devel`, or `test`.')
+#ckpt/conv_x1_reg_1rnn_w/
 def evaluate(data_folder):
   """Evaluates the model once. Prints in terminal the Accuracy and the UAR of the audio model.
     
@@ -38,11 +39,11 @@ def evaluate(data_folder):
     with slim.arg_scope([slim.batch_norm, slim.layers.dropout],
                            is_training=False):
       predictions = models.get_model(FLAGS.model)(audio)
-  
+
     coord = tf.train.Coordinator()
     variables_to_restore = slim.get_variables_to_restore()
 
-    num_batches = num_examples // FLAGS.batch_size
+    num_batches = math.ceil(num_examples / float(FLAGS.batch_size))
 
     evaluated_predictions = []
     evaluated_labels = []
@@ -56,14 +57,15 @@ def evaluate(data_folder):
         tf.train.start_queue_runners(sess=sess)
 
         try:
+            
             for _ in print_progress(range(num_batches), prefix="Batch"):
                 pr, l = sess.run([predictions, labels])
                 evaluated_predictions.append(pr)
-                evaluated_labels.append(l)
+                evaluated_labels.append(l)#
 
                 if coord.should_stop():
                     break
-
+            
             coord.request_stop()
         except Exception as e:
             coord.request_stop(e)
@@ -71,17 +73,23 @@ def evaluate(data_folder):
         predictions = np.reshape(evaluated_predictions, (-1, 2))
         labels = np.reshape(evaluated_labels, (-1, 2))
 
-        pred_argmax = np.argmax(predictions, 1)
-        lab_argmax = np.argmax(labels, 1)
+        pred_argmax = np.argmax(predictions, axis=1)
+        lab_argmax = np.argmax(labels, axis=1)
+
+        not_pred_argmax = np.argmin(predictions, axis=1)
+        not_lab_argmax = np.argmin(labels, axis=1)
 
         correct = (pred_argmax == lab_argmax).mean()
-        print('Accuracy: {:.2f}'.format(correct))
+        print('Accuracy: {}'.format(correct))
 
         recall_1 = sm.recall_score(lab_argmax, pred_argmax)
-        recall_2 = sm.recall_score(lab_argmax, pred_argmax, pos_label=0)
+        recall_2 = sm.recall_score(not_lab_argmax, not_pred_argmax)
+
+        print('Function recall 1: {}'.format(recall_1))
+        print('Function recall 2: {}'.format(recall_2))
 
         uar = (recall_1 + recall_2) / 2
-        print('UAR: {:.2f}'.format(uar))
+        print('UAR: {}'.format(uar))
 
 def main(_):
     evaluate(FLAGS.dataset_dir)
