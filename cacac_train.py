@@ -16,7 +16,7 @@ tf.app.flags.DEFINE_float('num_epochs_per_decay', 5.0, 'Epochs after which learn
 tf.app.flags.DEFINE_float('learning_rate_decay_factor', 0.97, 'Learning rate decay factor.')
 tf.app.flags.DEFINE_integer('batch_size', 15, '''The batch size to use.''')
 tf.app.flags.DEFINE_integer('num_preprocess_threads', 4, 'How many preprocess threads to use.')
-tf.app.flags.DEFINE_string('train_dir', 'ckpt/cov_filt_40_ml_cov',
+tf.app.flags.DEFINE_string('train_dir', 'ckpt/conv_x1_reg_1rnn_w/',
                            '''Directory where to write event logs '''
                            '''and checkpoint.''')
 tf.app.flags.DEFINE_string('pretrained_model_checkpoint_path', '',
@@ -26,14 +26,14 @@ tf.app.flags.DEFINE_integer('max_steps', 100000, 'Number of batches to run.')
 tf.app.flags.DEFINE_string('train_device', '/gpu:0', 'Device to train with.')
 tf.app.flags.DEFINE_string('model', 'audio',
                            '''Which model is going to be used: audio,video, or both ''')
-tf.app.flags.DEFINE_string('dataset_dir', 'CACAC/tf_records_2/', 'The tfrecords directory.')
+tf.app.flags.DEFINE_string('dataset_dir', '/vol/atlas/homes/pt511/db/URTIC/tf_records', 'The tfrecords directory.')
 
 def train(data_folder):
   """Trains the audio model.
-  
+
   Args:
      data_folder: The folder that contains the training data.
-  """  
+  """
 
   g = tf.Graph()
   with g.as_default():
@@ -45,10 +45,13 @@ def train(data_folder):
                         is_training=True):
         prediction = models.get_model(FLAGS.model)(audio)
 
-    slim.losses.softmax_cross_entropy(prediction, ground_truth)
-    
-    total_loss =  slim.losses.get_total_loss()
+    loss = tf.nn.weighted_cross_entropy_with_logits(prediction, ground_truth,
+                                                                  pos_weight=0.2)
+    loss = slim.losses.compute_weighted_loss(loss)
+    total_loss = slim.losses.get_total_loss()
+
     tf.scalar_summary('losses/total loss', total_loss)
+    tf.scalar_summary('losses/Cross Entropy Loss', loss)
 
     optimizer = tf.train.AdamOptimizer(FLAGS.initial_learning_rate)
 

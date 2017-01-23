@@ -16,7 +16,7 @@ def recurrent_model(net, hidden_units=256, num_classes=2):
   Returns:
       The prediction of the network.
   """
-  
+
   batch_size, seq_length, num_features = net.get_shape().as_list()
 
   lstm = tf.nn.rnn_cell.LSTMCell(hidden_units,
@@ -24,7 +24,7 @@ def recurrent_model(net, hidden_units=256, num_classes=2):
                                  cell_clip=100,
                                  state_is_tuple=True)
 
-  stacked_lstm = tf.nn.rnn_cell.MultiRNNCell([lstm] * 2, state_is_tuple=True)
+  stacked_lstm = tf.nn.rnn_cell.MultiRNNCell([lstm], state_is_tuple=True)
 
   # We have to specify the dimensionality of the Tensor so we can allocate
   # weights for the fully connected layers.
@@ -52,20 +52,20 @@ def audio_model(inputs, conv_filters=20):
   seq_length = tf.shape(inputs)[1]
 
   net = tf.reshape(inputs, [batch_size * seq_length, 1, num_features, 1])
-  
+
   with slim.arg_scope([slim.layers.conv2d],
-                       padding='SAME', activation_fn=slim.batch_norm):
-    for i in range(4):
+                       padding='SAME', weights_regularizer=slim.l2_regularizer(0.01)):
+#    for i in range(4):
       net = slim.layers.conv2d(net, conv_filters, (1, 20))
 
       net = tf.nn.max_pool(
           net,
-          ksize=[1, 1, 3, 1],
-          strides=[1, 1, 3, 1],
+          ksize=[1, 1, 2, 1],
+          strides=[1, 1, 2, 1],
           padding='SAME',
           name='pool1')
 
-  net = tf.reshape(net, (batch_size, seq_length, num_features // 4))
+  net = tf.reshape(net, (batch_size, seq_length, num_features*10))
 
   return net
 
@@ -90,3 +90,4 @@ def get_model(name):
     return recurrent_model(model(*args, **kwargs))
 
   return wrapper
+
