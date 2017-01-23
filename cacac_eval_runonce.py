@@ -20,7 +20,7 @@ tf.app.flags.DEFINE_string('model', 'audio', 'Which model is going to be used: `
 tf.app.flags.DEFINE_string('dataset_dir', '/vol/atlas/homes/pt511/db/URTIC/tf_records', 'The tfrecords directory.')
 tf.app.flags.DEFINE_string('checkpoint_dir', 'ckpt/conv_x1_reg_1rnn_w/', 'The tfrecords directory.')
 tf.app.flags.DEFINE_string('portion', 'train', 'The portion of the dataset to use -- `train`, `devel`, or `test`.')
-#ckpt/conv_x1_reg_1rnn_w/
+
 def evaluate(data_folder):
   """Evaluates the model once. Prints in terminal the Accuracy and the UAR of the audio model.
     
