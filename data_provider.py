@@ -8,11 +8,20 @@ from pathlib import Path
 
 slim = tf.contrib.slim
 
+# Cold dataset
+_split_to_num_samples = {
+  'test': 9551, 
+  'devel': 9596, 
+  'train': 9505
+}
+
+'''
 _split_to_num_samples = {
   'test': 3594,
   'devel': 3550,
   'train': 3742
 }
+'''
 
 def get_split(dataset_dir, split_name='train', batch_size=32):
   """Returns a data split of the RECOLA dataset.
