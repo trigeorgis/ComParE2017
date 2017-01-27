@@ -1,14 +1,20 @@
 # CHILD OR ADULT CONVERSATIONAL ADDRESSEE CORPUS (CACAC) Challenge
 This package provides training and evaluation code for the end-to-end baseline
-for the 1st ComParE challenge.
+for the 1st and 2nd ComParE challenge.
 
-This challenge comprises recordings of child/adult and adult/adult
+The 1st challenge comprises recordings of child/adult and adult/adult
 conversations – the task is to determine the addressee (child or adult
 by an adult).
 Recordings of the near field of 61 individuals (babies) were made with
 the LENA recording device in real homes. (The number of actual speakers
 is unknown.) Overall, ~11,000 (10886) samples (segments) totalling up to
 288 minutes are included.
+
+The 2nd challenge comprises recordings of individuals – the task is to 
+determine whether the person speacking is cold or not.
+The number of actual speakers is 630 (382 males, 248 females), with age 
+ranging from 12 to 84 years old. Overall, the corpus consists of ~11,000 
+(11283) audio recordings.
 
 
 1. [Installation](#installation)
