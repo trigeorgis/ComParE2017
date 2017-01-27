@@ -6,18 +6,28 @@ from pathlib import Path
 
 FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_string('wave_folder', 'CACAC/all/', 'The folder that contains the wav files.')
-tf.app.flags.DEFINE_string('labels_folder', 'CACAC/labels.txt', 'The folder that contains the labels.txt file.')
+tf.app.flags.DEFINE_string('labels_file', 'CACAC/labels.txt', 'The folder that contains the labels.txt file.')
 tf.app.flags.DEFINE_string('tf_folder', 'CACAC/all/tf_records', 'The folder to write the tf records.')
+tf.app.flags.DEFINE_string('class_name', 'CDS', 'The majority class name.')
 
-def get_labels(root_dir):
-  
+__signal_framerate = 16000
+
+def get_labels(label_file, class_name):
+  """Parses the labels.txt file. 
+
+  Args:
+      label_file: The path of the labels.txt file.
+      class_name: The name of the minority class.
+  Returns:
+      A dictionary for the labels of each fold.
+  """
   root_dir = Path(root_dir)
-  with open((root_dir).as_posix()) as f:
+  with open((label_file).as_posix()) as f:
     raw_labels = [x.strip().split(';') for x in f.readlines()]
   
   labels = {}
   for name, portion, g in raw_labels:
-    labels.setdefault(portion, []).append((name, g == 'CDS'))
+    labels.setdefault(portion, []).append((name, g == class_name))
 
   return labels
 
@@ -25,7 +35,7 @@ def get_audio(wav_file, root_dir):
   """Reads a wav file and splits it in chunks of 40ms. 
   Pads with zeros if duration does not fit exactly the 40ms chunks.
   Assumptions: 
-      A. wav file has one channel.
+      A. Wave file has one channel.
       B. Frame rate of wav file is 16KHz.
   
   Args:
@@ -36,22 +46,25 @@ def get_audio(wav_file, root_dir):
   """
 
   fp = wave.open(str(root_dir / wav_file))
-  nchan = fp.getnchannels()
+  num_of_channels = fp.getnchannels()
   fps = fp.getframerate()
-
+    
   if nchan > 1:
-    raise ValueError('The wav file should have 1 channel. [{}] found'.format(nchan))
-  if fps != 16000:
+    raise ValueError('The wav file should have 1 channel. [{}] found'.format(num_of_channels))
+
+  if fps != __signal_framerate:
     raise ValueError('The wav file should have 16000 fps. [{}] found'.format(fps))
 
-  N = fp.getnframes()
-  dstr = fp.readframes(N*nchan)
+  chunk_size = 640 # 40ms if fps = 16k.
+
+  num_frames = fp.getnframes()
+  dstr = fp.readframes(num_frames * num_of_channels)
   data = np.fromstring(dstr, np.int16)
   audio = np.reshape(data, (-1))
-  audio = (1.0*audio) / 2**(2*8-1) # Normalize audio data.
+  audio = audio / 2.**15 # Normalise audio data (int16).
 
-  audio = np.pad(audio, (0, 640 - audio.shape[0] % 640), 'constant')
-  audio = audio.reshape(-1, 640)
+  audio = np.pad(audio, (0, chunk_size - audio.shape[0] % chunk_size), 'constant')
+  audio = audio.reshape(-1, chunk_size)
 
   return audio
 
@@ -77,9 +90,9 @@ def serialize_sample(writer, sample_data, root_dir):
 def main(data_folder, labels_file, tfrecords_folder):
 
   root_dir = Path(data_folder)
-  labels = get_labels(labels_file)
+  labels = get_labels(labels_file, FLAGS.class_name)
   for portion in labels:
-    print('Createing {} tfrecord file'.format(portion))
+    print('Creating tfrecords for [{}].'.format(portion))
     writer = tf.python_io.TFRecordWriter(
         (Path(tfrecords_folder) / '{}.tfrecords'.format(portion)
     ).as_posix())

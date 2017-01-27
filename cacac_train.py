@@ -14,9 +14,9 @@ FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_float('initial_learning_rate', 0.0001, 'Initial learning rate.')
 tf.app.flags.DEFINE_float('num_epochs_per_decay', 5.0, 'Epochs after which learning rate decays.')
 tf.app.flags.DEFINE_float('learning_rate_decay_factor', 0.97, 'Learning rate decay factor.')
-tf.app.flags.DEFINE_integer('batch_size', 15, '''The batch size to use.''')
+tf.app.flags.DEFINE_integer('batch_size', 8, '''The batch size to use.''')
 tf.app.flags.DEFINE_integer('num_preprocess_threads', 4, 'How many preprocess threads to use.')
-tf.app.flags.DEFINE_string('train_dir', 'ckpt/conv_x1_reg_1rnn_w/',
+tf.app.flags.DEFINE_string('train_dir', 'ckpt/train/',
                            '''Directory where to write event logs '''
                            '''and checkpoint.''')
 tf.app.flags.DEFINE_string('pretrained_model_checkpoint_path', '',
@@ -46,11 +46,20 @@ def train(data_folder):
         prediction = models.get_model(FLAGS.model)(audio)
 
     loss = tf.nn.weighted_cross_entropy_with_logits(prediction, ground_truth,
-                                                                  pos_weight=0.2)
+                                                                pos_weight=5)
     loss = slim.losses.compute_weighted_loss(loss)
     total_loss = slim.losses.get_total_loss()
-
+    
+    accuracy = tf.reduce_mean(
+        tf.to_float(tf.argmax(ground_truth, 1) == tf.argmax(prediction, 1)))
+    
+    chance_accuracy = tf.reduce_mean(
+        tf.to_float(tf.argmax(ground_truth, 1) == 1))
+    
     tf.scalar_summary('losses/total loss', total_loss)
+    tf.scalar_summary('accuracy', accuracy)
+    tf.scalar_summary('chance accuracy', accuracy)
+    tf.histogram_summary('labels', tf.argmax(ground_truth, 1))
     tf.scalar_summary('losses/Cross Entropy Loss', loss)
 
     optimizer = tf.train.AdamOptimizer(FLAGS.initial_learning_rate)

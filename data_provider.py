@@ -59,14 +59,14 @@ def get_split(dataset_dir, split_name='train', batch_size=32):
 
   if is_training:
     raw_audio, label = tf.train.shuffle_batch(
-            [raw_audio, label], 1, 5000, 500, 4)
+            [raw_audio, label], 1, 10000, 500, 4)
     raw_audio = raw_audio[0]
     label = label[0]
 
   raw_audio = tf.decode_raw(raw_audio, tf.float32)
 
   if is_training:
-    raw_audio += tf.random_normal(tf.shape(raw_audio), stddev=.25)
+    raw_audio += tf.random_normal(tf.shape(raw_audio), stddev=.05)
 
   frames, labels = tf.train.batch([raw_audio, label], batch_size,
                                 capacity=1000, dynamic_pad=True)
