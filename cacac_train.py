@@ -26,7 +26,7 @@ tf.app.flags.DEFINE_integer('max_steps', 100000, 'Number of batches to run.')
 tf.app.flags.DEFINE_string('train_device', '/gpu:0', 'Device to train with.')
 tf.app.flags.DEFINE_string('model', 'audio',
                            '''Which model is going to be used: audio,video, or both ''')
-tf.app.flags.DEFINE_string('dataset_dir', '/vol/atlas/homes/pt511/db/URTIC/tf_records', 'The tfrecords directory.')
+tf.app.flags.DEFINE_string('dataset_dir', 'urtic', 'The tfrecords directory.')
 
 def train(data_folder):
   """Trains the audio model.
@@ -46,15 +46,16 @@ def train(data_folder):
         prediction = models.get_model(FLAGS.model)(audio)
 
     loss = tf.nn.weighted_cross_entropy_with_logits(prediction, ground_truth,
-                                                                pos_weight=5)
+                                                                pos_weight=1)
     loss = slim.losses.compute_weighted_loss(loss)
     total_loss = slim.losses.get_total_loss()
+    
     
     accuracy = tf.reduce_mean(
         tf.to_float(tf.argmax(ground_truth, 1) == tf.argmax(prediction, 1)))
     
     chance_accuracy = tf.reduce_mean(
-        tf.to_float(tf.argmax(ground_truth, 1) == 1))
+        tf.to_float(tf.argmax(ground_truth, 1) == 0))
     
     tf.scalar_summary('losses/total loss', total_loss)
     tf.scalar_summary('accuracy', accuracy)

@@ -7,7 +7,7 @@ import tensorflow as tf
 slim = tf.contrib.slim
 
 def recurrent_model(net, hidden_units=64, num_classes=2):
-  """Adds the LSTM network on top of the static audio model.
+  """Adds the LSTM network on top of the spatial audio model.
 
   Args:
      net: A `Tensor` of dimensions [batch_size, seq_length, num_features].
@@ -26,12 +26,12 @@ def recurrent_model(net, hidden_units=64, num_classes=2):
 
   stacked_lstm = tf.nn.rnn_cell.MultiRNNCell([lstm] * 2, state_is_tuple=True)
 
-  # We have to specify the dimensionality of the Tensor so we can allocate
-  # weights for the fully connected layers.
+
   outputs, _ = tf.nn.dynamic_rnn(stacked_lstm, net, dtype=tf.float32)
 
+  # We have to specify the dimensionality of the Tensor so we can allocate
+  # weights for the fully connected layers.
   net = tf.reshape(outputs[:, -1], (batch_size, hidden_units))
-
   prediction = slim.layers.linear(net, num_classes)
 
   return tf.reshape(prediction, (batch_size, num_classes))
