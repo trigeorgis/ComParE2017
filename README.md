@@ -1,6 +1,6 @@
 # CHILD OR ADULT CONVERSATIONAL ADDRESSEE CORPUS (CACAC) Challenge
 This package provides training and evaluation code for the end-to-end baseline
-for the 1st ComParE challenge. 
+for the 1st ComParE challenge.
 
 This challenge comprises recordings of child/adult and adult/adult
 conversations – the task is to determine the addressee (child or adult
@@ -41,9 +41,9 @@ For example, for 64-bit Linux, the installation of GPU enabled, Python 3.5 Tenso
 
 ## 2. Methodology
 
-We use a convolutional-recurrent architecture which is comprised of a convolutional networks
-which extracts features of the raw waveform and an LSTM network which takes these features
-and classifies the whole sequence as one of the two classes (child/adult or adult/adult).
+We use a convolutional-recurrent architecture which is comprised of convolutional networks
+which extract features of the raw waveform, and an LSTM network which takes these features
+and classifies the whole sequence as one of the two classes (child/adult or adult/adult or cold/not_cold).
 
 The waveform is split in 40ms chunks and for each of these we extract features and then 
 we use a recurrent network to traverse the whole sequence. At the end we are left with 
@@ -51,7 +51,9 @@ the hidden state from the LSTM network which we use to do the final classificati
 
 ## 3. Running
 
-First we need to convert the original wave files in a format more suitable for
+There are two options to use the input data to run experiments.
+
+The first is to convert the original wave files in a format more suitable for
 TensorFlow using TF Records.
 
 ```console
@@ -61,4 +63,12 @@ TensorFlow using TF Records.
 By default the `tfrecords` will be generated in a folder called `tf_records` which 
 containts a file for each dataset split (`train`, `devel`, `test`).
 
+The second is to use raw wav files. For example, to run the evaluation one should use
+the following command.
+
+```console
+(cacac)$ python cacac_eval.py --wave_folder=wav_files --label_file=labels.txt
+```
+
 ## 4. Results
+
