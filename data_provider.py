@@ -24,7 +24,7 @@ _split_to_num_samples = {
 '''
 
 def get_split(dataset_dir, split_name='train', batch_size=32):
-  """Returns a data split of the RECOLA dataset.
+  """Returns a data split of the ComParE dataset.
   
   Args:
       dataset_dir: The directory that contains the data.
