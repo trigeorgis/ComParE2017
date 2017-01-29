@@ -80,5 +80,9 @@ def train(data_folder):
                             save_summaries_secs=60,
                             save_interval_secs=600)
 
-if __name__ == '__main__':
+def main(_):
   train(FLAGS.dataset_dir)
+
+if __name__ == '__main__':
+  tf.app.run()
+
