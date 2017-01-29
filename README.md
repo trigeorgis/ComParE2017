@@ -55,23 +55,44 @@ The waveform is split in 40ms chunks and for each of these we extract features a
 we use a recurrent network to traverse the whole sequence. At the end we are left with 
 the hidden state from the LSTM network which we use to do the final classification.
 
-## 3. Running
+## 3. Generating data
 
 There are two options to use the input data to run experiments.
 
 The first is to convert the original wave files in a format more suitable for
 TensorFlow using TF Records.
 
-> CACAC
+> CACAC (First Challenge)
 ```console
 (compare)$ python data_generator.py --wave_folder=path/to/wave_folder --labels_file=path/to/labels.txt --tf_folder=tf_records --class_name=CDS`
 ```
 
-> URTIC
+> URTIC (Second Challenge)
 ```console
 (compare)$ python data_generator.py --wave_folder=path/to/wave_folder --labels_file=path/to/labels.txt --tf_folder=tf_records --class_name=cold
 ```
 
 By default the `tfrecords` will be generated in a folder called `tf_records` which 
 containts a file for each dataset split (`train`, `devel`, `test`).
+
+
+## 4. Training the models
+
+
+> CACAC (First Challenge)
+```console
+(compare)$ python compare_train.py --task=cacac --train_dir=ckpt/train_cacac
+```
+
+> URTIC (Second Challenge)
+```console
+(compare)$ python compare_train.py --task=urtic --train_dir=ckpt/train_urtic
+```
+
+## 5. Evaluating the models
+
+```console
+(compare)$ python compare_eval.py --task=(cacac or urtic) --checkpoint_dir=ckpt/train
+```
+
 
