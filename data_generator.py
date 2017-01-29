@@ -91,9 +91,10 @@ def serialize_sample(writer, sample_data, root_dir, upsample=False):
     
     for _ in range(int(ratio)):
         for sample, label in sample_data:
-            if label == num_samples_per_class[majority_id]:
-                augmented_data.append((sample, data))
+            if label == majority_id:
+                augmented_data.append((sample, label))
     
+    print('Augmented the dataset with {} samples'.format(len(augmented_data)))
     sample_data += augmented_data
     
     import random
@@ -114,13 +115,13 @@ def main(data_folder, labels_file, tfrecords_folder):
 
   root_dir = Path(data_folder)
   labels = get_labels(labels_file, FLAGS.class_name)
-  for portion in ['train']:
+  for portion in ['devel', 'test']:
     print('Creating tfrecords for [{}].'.format(portion))
     writer = tf.python_io.TFRecordWriter(
         (Path(tfrecords_folder) / '{}.tfrecords'.format(portion)
     ).as_posix())
     
-    serialize_sample(writer, labels[portion], root_dir, upsample='train' in portion)
+    serialize_sample(writer, labels[portion], root_dir, upsample='train' in portion or 'devel' in portion)
     writer.close()
 
 if __name__ == '__main__':

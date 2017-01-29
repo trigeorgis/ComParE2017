@@ -22,6 +22,7 @@ tf.app.flags.DEFINE_string('log_dir', 'ckpt/eval/', 'The directory to save the e
 tf.app.flags.DEFINE_integer('num_examples', None, 'The number of examples in the given portion.')
 tf.app.flags.DEFINE_string('eval_interval_secs', 300, 'The number of examples in the test set')
 tf.app.flags.DEFINE_string('portion', 'devel', 'The portion of the dataset to use -- `train`, `devel`, or `test`.')
+tf.app.flags.DEFINE_string('task', 'urtic', 'The task to execute. `cacac` or `urtic`')
 
 def evaluate(data_folder):
   """Evaluates the audio model.
@@ -33,9 +34,10 @@ def evaluate(data_folder):
   g = tf.Graph()
   with g.as_default():
     # Load dataset.
-    audio, labels, num_examples = data_provider.get_split(
-        data_folder, FLAGS.portion, FLAGS.batch_size)
-
+    provider = data_provider.get_provider(FLAGS.task)(data_folder)
+    print(provider)
+    audio, labels, num_examples = provider.get_split(FLAGS.portion, FLAGS.batch_size)
+    
     # Define model graph.
     with slim.arg_scope([slim.batch_norm],
                            is_training=False):

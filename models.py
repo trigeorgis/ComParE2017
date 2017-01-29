@@ -50,6 +50,8 @@ def audio_model(inputs, conv_filters=32):
     batch_size, _, num_features = inputs.get_shape().as_list()
     seq_length = tf.shape(inputs)[1]
 
+    # return  tf.reshape(inputs, (batch_size, seq_length, num_features))
+
     net = tf.reshape(inputs, [batch_size * seq_length, 1, num_features, 1])
     net = tf.nn.avg_pool(
         net,
@@ -61,7 +63,7 @@ def audio_model(inputs, conv_filters=32):
     with slim.arg_scope([slim.layers.conv2d],
                          padding='SAME', activation_fn=slim.batch_norm):
         for i in range(8):
-            net = slim.layers.conv2d(net, conv_filters, (1, 20))
+            net = slim.layers.conv2d(net, conv_filters, (1, 40))
 
             net = tf.nn.max_pool(
                 net,
@@ -70,7 +72,6 @@ def audio_model(inputs, conv_filters=32):
                 padding='SAME',
                 name='pool')
            
-    print(net.get_shape())
     net = tf.reshape(net, (batch_size, seq_length, 2 * 32))
     return net
 
