@@ -1,4 +1,5 @@
-# CHILD OR ADULT CONVERSATIONAL ADDRESSEE CORPUS (CACAC) Challenge
+# Interspeech 2017 - Computational Paralinguistics Challenge (ComParE)
+
 This package provides training and evaluation code for the end-to-end baseline
 for the 1st and 2nd ComParE challenge.
 
@@ -27,21 +28,21 @@ Once downloading and installing [conda](http://conda.pydata.org/miniconda.html),
 
 **Step 1:** Create a new conda environment and activate it:
 ```console
-$ conda create -n cacac python=3.5
-$ source activate cacac
+$ conda create -n compare python=3.5
+$ source activate compare
 ```
 
 **Step 2:** Install [TensorFlow](https://www.tensorflow.org/) following the 
 official [installation instructions](https://www.tensorflow.org/versions/r0.12/get_started/os_setup.html). 
 For example, for 64-bit Linux, the installation of GPU enabled, Python 3.5 TensorFlow involves:
 ```console
-(cacac)$ export TF_BINARY_URL=https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-0.12.0-cp35-cp35m-linux_x86_64.whl
-(cacac)$ pip install --upgrade $TF_BINARY_URL
+(compare)$ export TF_BINARY_URL=https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-0.12.0-cp35-cp35m-linux_x86_64.whl
+(compare)$ pip install --upgrade $TF_BINARY_URL
 ```
 
-**Step 4:** Clone and install the `cacac` project as:
+**Step 4:** Clone and install the `compare` project as:
 ```console
-(cacac)$ git clone git@github.com:trigeorgis/Interspeech2017.git
+(compare)$ git clone git@github.com:trigeorgis/Interspeech2017.git
 ```
 
 ## 2. Methodology
@@ -61,19 +62,16 @@ There are two options to use the input data to run experiments.
 The first is to convert the original wave files in a format more suitable for
 TensorFlow using TF Records.
 
+> CACAC
 ```console
-(cacac)$ python data_generator.py --wave_folder=wav_files --label_file=labels.txt
+(compare)$ python data_generator.py --wave_folder=path/to/wave_folder --labels_file=path/to/labels.txt --tf_folder=tf_records --class_name=CDS`
+```
+
+> URTIC
+```console
+(compare)$ python data_generator.py --wave_folder=path/to/wave_folder --labels_file=path/to/labels.txt --tf_folder=tf_records --class_name=cold
 ```
 
 By default the `tfrecords` will be generated in a folder called `tf_records` which 
 containts a file for each dataset split (`train`, `devel`, `test`).
-
-The second is to use raw wav files. For example, to run the evaluation one should use
-the following command.
-
-```console
-(cacac)$ python cacac_eval.py --wave_folder=wav_files --label_file=labels.txt
-```
-
-## 4. Results
 
