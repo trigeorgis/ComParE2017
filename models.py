@@ -6,7 +6,7 @@ import tensorflow as tf
 
 slim = tf.contrib.slim
 
-def recurrent_model(net, hidden_units=64, num_classes=2):
+def recurrent_model(net, hidden_units=64, num_classes=4):
   """Adds the LSTM network on top of the spatial audio model.
 
   Args:
@@ -97,4 +97,3 @@ def get_model(name):
     return recurrent_model(model(*args, **kwargs))
 
   return wrapper
-

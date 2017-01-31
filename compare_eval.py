@@ -22,7 +22,7 @@ tf.app.flags.DEFINE_string('log_dir', 'ckpt/eval/', 'The directory to save the e
 tf.app.flags.DEFINE_integer('num_examples', None, 'The number of examples in the given portion.')
 tf.app.flags.DEFINE_string('eval_interval_secs', 300, 'The number of examples in the test set')
 tf.app.flags.DEFINE_string('portion', 'devel', 'The portion of the dataset to use -- `train`, `devel`, or `test`.')
-tf.app.flags.DEFINE_string('task', 'urtic', 'The task to execute. `cacac` or `urtic`')
+tf.app.flags.DEFINE_string('task', 'snore', 'The task to execute. `cacac` or `urtic`')
 
 def evaluate(data_folder):
   """Evaluates the audio model.
@@ -35,36 +35,44 @@ def evaluate(data_folder):
   with g.as_default():
     # Load dataset.
     provider = data_provider.get_provider(FLAGS.task)(data_folder)
-    print(provider)
-    audio, labels, num_examples = provider.get_split(FLAGS.portion, FLAGS.batch_size)
-    
+
+    audio, labels, num_examples, num_classes = provider.get_split(FLAGS.portion, FLAGS.batch_size)
+
     # Define model graph.
     with slim.arg_scope([slim.batch_norm],
                            is_training=False):
       predictions = models.get_model(FLAGS.model)(audio)
 
-      pred_argmax = tf.argmax(predictions, 1) 
+      pred_argmax = tf.argmax(predictions, 1)
       lab_argmax = tf.argmax(labels, 1)
 
-      not_lab_argmax = tf.argmin(labels, 1)
-      not_pred_argmax = tf.argmin(predictions, 1)
+      pred = dict()
+      lab = dict()
+      for i in range(4):
+        pred[i] = tf.cast(tf.equal(pred_argmax, i), tf.int64)
+        lab[i] = tf.cast(tf.equal(lab_argmax, i), tf.int64)
 
-      names_to_values, names_to_updates = slim.metrics.aggregate_metric_map({
-          'eval/recall1': slim.metrics.streaming_recall(pred_argmax, lab_argmax, name='recall1'),
-          'eval/recall2': slim.metrics.streaming_recall(not_pred_argmax, not_lab_argmax, name='recall2'),
-          "eval/accuracy": slim.metrics.streaming_accuracy(pred_argmax, lab_argmax, name='accuracy')
-      })
+      metrics = {"eval/recall"+str(i+1):
+              slim.metrics.streaming_recall(pred[i], lab[i], name='recall'+str(i+1))
+                  for i in range(num_classes)
+             }
+      metrics['eval/accuracy'] = \
+          slim.metrics.streaming_accuracy(pred_argmax, lab_argmax, name='accuracy')
+
+      names_to_values, names_to_updates = slim.metrics.aggregate_metric_map(metrics)
 
       summary_ops = []
       metrics = dict()
+      uar = 0
       for name, value in names_to_values.items():
         op = tf.summary.scalar(name, value)
         op = tf.Print(op, [value], name)
         summary_ops.append(op)
         metrics[name] = value
+        uar += value if 'recall' in name else 0
 
       # Computing the unweighted average recall and add it into the summaries.
-      uar = (metrics['eval/recall1'] + metrics['eval/recall2']) / 2.
+      uar = uar / num_classes
       op = tf.summary.scalar('eval/uar', uar)
       op = tf.Print(op, [uar], 'eval/uar')
       summary_ops.append(op)

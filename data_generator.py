@@ -107,7 +107,8 @@ def serialize_sample(writer, sample_data, root_dir, upsample=False):
                 'label': _int_feauture(label),
                 'raw_audio': _bytes_feauture(audio.tobytes()),
             }))
-
+    print(label)
+    return
     writer.write(example.SerializeToString())
     del audio, label
 
