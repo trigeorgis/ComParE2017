@@ -89,15 +89,3 @@ def main(_):
 
 if __name__ == '__main__':
   tf.app.run()
-
-
-#    print(prediction)
-#    print(ground_truth)
-#    print('----------------')
-#    m_labels = tf.argmax(ground_truth, axis=1)
-#    print(tf.argmax(ground_truth, axis=1))
-#    loss = tf.nn.softmax_cross_entropy_with_logits(
-#       logits = prediction, labels=ground_truth, name='xentropy')
-#    loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
-#        logits = prediction, labels=m_labels, name='xentropy')
-
