@@ -8,12 +8,10 @@ from pathlib import Path
 
 slim = tf.contrib.slim
 
-
 class Dataset:
     def __init__(self, dataset_dir):
         self.dataset_dir = dataset_dir
-        print(self)
-        
+
     def get_split(self, split_name='train', batch_size=32):
       """Returns a data split of the ComParE dataset.
 
@@ -63,25 +61,33 @@ class Dataset:
                                     capacity=1000, dynamic_pad=True)
 
       frames = tf.reshape(frames, (batch_size, -1, 640))
-      labels = slim.one_hot_encoding(labels, 2)
+      labels = slim.one_hot_encoding(labels, self.num_classes)
 
-      return frames, labels, sum(self._split_to_num_samples[name] for name in split_name.split(','))
+      return frames, labels, sum(self._split_to_num_samples[name] for name in split_name.split(',')), self.num_classes
 
-    
 class CACACProvider(Dataset):
     _split_to_num_samples = {
       'test': 3594,
       'devel': 3550,
       'train': 3742
     }
+    num_classes = 2
 
-    
+class SNOREProvider(Dataset):
+    _split_to_num_samples = {
+      'test': 263,
+      'devel': 283,
+      'train': 282
+    }
+    num_classes = 4
+
 class URTICProvider(Dataset):
     _split_to_num_samples = {
       'test': 9551, 
       'devel': 9596, 
       'train': 9505
     }
+    num_classes = 2
 
 
 def get_provider(name):
@@ -93,7 +99,7 @@ def get_provider(name):
       The requested provider.
   """
 
-  name_to_class = {'cacac': CACACProvider, 'urtic': URTICProvider}
+  name_to_class = {'cacac': CACACProvider, 'urtic': URTICProvider, 'snore': SNOREProvider}
 
   if name in name_to_class:
     provider = name_to_class[name]
@@ -101,4 +107,5 @@ def get_provider(name):
     raise ValueError('Requested name [{}] not a valid provider'.format(name))
 
   return provider
+
 

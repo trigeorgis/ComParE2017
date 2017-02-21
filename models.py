@@ -6,7 +6,7 @@ import tensorflow as tf
 
 slim = tf.contrib.slim
 
-def recurrent_model(net, hidden_units=64, num_classes=2):
+def recurrent_model(net, hidden_units=64, num_classes=4):
   """Adds the LSTM network on top of the spatial audio model.
 
   Args:
@@ -71,7 +71,7 @@ def audio_model(inputs, conv_filters=32):
                 strides=[1, 1, 2, 1],
                 padding='SAME',
                 name='pool')
-           
+         
     net = tf.reshape(net, (batch_size, seq_length, 2 * 32))
     return net
 

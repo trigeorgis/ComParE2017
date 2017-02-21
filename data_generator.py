@@ -13,7 +13,7 @@ tf.app.flags.DEFINE_string('class_name', 'CDS', 'The majority class name.')
 __signal_framerate = 16000
 
 def get_labels(label_file, class_name):
-  """Parses the labels.txt file. 
+  """Parses the labels.txt file.
 
   Args:
       label_file: The path of the labels.txt file.
@@ -21,12 +21,15 @@ def get_labels(label_file, class_name):
   Returns:
       A dictionary for the labels of each fold.
   """
+  labels_idx = {'V': 0, 'E': 1, 'O': 2, 'T': 3}
+
   with open(str(label_file)) as f:
-    raw_labels = [np.array(x.strip().split(';'))[[0, 1, -1]] for x in f.readlines()]
-  
+    raw_labels = [np.array(x.strip().split('\t'))[[0, 1]] for x in f.readlines()]
+
   labels = {}
-  for name, portion, g in raw_labels:
-    labels.setdefault(portion, []).append((name, g == class_name))
+  for name, g in raw_labels[1:]:
+    idx = name.find('_')
+    labels.setdefault(name[:idx], []).append((name, labels_idx[str(g)]))
 
   return labels
 
@@ -47,7 +50,7 @@ def get_audio(wav_file, root_dir):
   fp = wave.open(str(root_dir / wav_file))
   num_of_channels = fp.getnchannels()
   fps = fp.getframerate()
-    
+   
   if num_of_channels > 1:
     raise ValueError('The wav file should have 1 channel. [{}] found'.format(num_of_channels))
 
@@ -78,7 +81,7 @@ def serialize_sample(writer, sample_data, root_dir, upsample=False):
   class_ids = set(classes)
   num_samples_per_class = {class_name: sum(x == class_name for x in classes) for class_name in class_ids}
   print(num_samples_per_class)
-    
+   
   if upsample:
     ratio = list(num_samples_per_class.values())
     ratio = ratio[0] / ratio[1]
@@ -86,20 +89,20 @@ def serialize_sample(writer, sample_data, root_dir, upsample=False):
 
     if ratio < 1:
         ratio  = 1 / ratio
-        
+       
     augmented_data = []
-    
+   
     for _ in range(int(ratio)):
         for sample, label in sample_data:
             if label == majority_id:
                 augmented_data.append((sample, label))
-    
+   
     print('Augmented the dataset with {} samples'.format(len(augmented_data)))
     sample_data += augmented_data
-    
+   
     import random
     random.shuffle(sample_data)
-    
+   
   for i, (wav_file, label) in enumerate(sample_data):
 
     audio = get_audio(wav_file, root_dir)
@@ -115,13 +118,13 @@ def main(data_folder, labels_file, tfrecords_folder):
 
   root_dir = Path(data_folder)
   labels = get_labels(labels_file, FLAGS.class_name)
-  for portion in ['devel', 'test']:
+  for portion in ['devel', 'train']:
     print('Creating tfrecords for [{}].'.format(portion))
     writer = tf.python_io.TFRecordWriter(
         (Path(tfrecords_folder) / '{}.tfrecords'.format(portion)
     ).as_posix())
-    
-    serialize_sample(writer, labels[portion], root_dir, upsample='train' in portion or 'devel' in portion)
+
+    serialize_sample(writer, labels[portion], root_dir, upsample=False)
     writer.close()
 
 if __name__ == '__main__':
