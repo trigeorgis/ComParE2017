@@ -17,6 +17,11 @@ The number of actual speakers is 630 (382 males, 248 females), with age
 ranging from 12 to 84 years old. Overall, the corpus consists of ~11,000 
 (11283) audio recordings.
 
+The 3rd challenge comprises recordings of snore sounds of individuals by 
+their excitation location within the upper airways. The task is to classify 
+4 different types of snoring, which are defined based on the VOTE scheme.
+There are 843 snore events from 224 subjects.
+
 1. [Installation](#installation)
 2. [Methodology](#methodology)
 3. [Running](#running)
@@ -42,14 +47,14 @@ For example, for 64-bit Linux, the installation of GPU enabled, Python 3.5 Tenso
 
 **Step 4:** Clone and install the `compare` project as:
 ```console
-(compare)$ git clone git@github.com:trigeorgis/Interspeech2017.git
+(compare)$ git clone git@github.com:trigeorgis/ComParE2017.git
 ```
 
 ## 2. Methodology
 
 We use a convolutional-recurrent architecture which is comprised of convolutional networks
 which extract features of the raw waveform, and an LSTM network which takes these features
-and classifies the whole sequence as one of the two classes (child/adult or adult/adult or cold/not_cold).
+and classifies the whole sequence as one of the classes in the datasets. 
 
 The waveform is split in 40ms chunks and for each of these we extract features and then 
 we use a recurrent network to traverse the whole sequence. At the end we are left with 
@@ -64,12 +69,16 @@ TensorFlow using TF Records.
 
 > CACAC (First Challenge)
 ```console
-(compare)$ python data_generator.py --wave_folder=path/to/wave_folder --labels_file=path/to/labels.txt --tf_folder=tf_records --class_name=CDS`
+(compare)$ python data_generator.py --wave_folder=path/to/wave_folder --labels_file=path/to/labels.txt --tf_folder=tf_records 
 ```
 
 > URTIC (Second Challenge)
 ```console
-(compare)$ python data_generator.py --wave_folder=path/to/wave_folder --labels_file=path/to/labels.txt --tf_folder=tf_records --class_name=cold
+(compare)$ python data_generator.py --wave_folder=path/to/wave_folder --labels_file=path/to/labels.txt --tf_folder=tf_records 
+```
+> SNORE (Third Challenge)
+```console
+(compare)$ python data_generator.py --wave_folder=path/to/wave_folder --labels_file=path/to/labels.txt --tf_folder=tf_records 
 ```
 
 By default the `tfrecords` will be generated in a folder called `tf_records` which 
@@ -89,10 +98,14 @@ containts a file for each dataset split (`train`, `devel`, `test`).
 (compare)$ python compare_train.py --task=urtic --train_dir=ckpt/train_urtic
 ```
 
+
+> SNORE (Third Challenge)
+```console
+(compare)$ python compare_train.py --task=snore --train_dir=ckpt/train_snore
+```
+
 ## 5. Evaluating the models
 
 ```console
-(compare)$ python compare_eval.py --task=(cacac or urtic) --checkpoint_dir=ckpt/train
+(compare)$ python compare_eval.py --task=(cacac or urtic or snore) --checkpoint_dir=ckpt/train
 ```
-
-
