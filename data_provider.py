@@ -12,7 +12,6 @@ slim = tf.contrib.slim
 class Dataset:
     def __init__(self, dataset_dir):
         self.dataset_dir = dataset_dir
-        print(self)
         
     def get_split(self, split_name='train', batch_size=32):
       """Returns a data split of the ComParE dataset.
