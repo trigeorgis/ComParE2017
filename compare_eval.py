@@ -14,7 +14,7 @@ from tensorflow.python.platform import tf_logging as logging
 slim = tf.contrib.slim
 
 FLAGS = tf.app.flags.FLAGS
-tf.app.flags.DEFINE_integer('batch_size', 16, '''The batch size to use.''')
+tf.app.flags.DEFINE_integer('batch_size', 1, '''The batch size to use.''')
 tf.app.flags.DEFINE_string('model', 'audio','''Which model is going to be used: audio, video, or both ''')
 tf.app.flags.DEFINE_string('dataset_dir', '/vol/atlas/homes/pt511/db/URTIC/tf_records', 'The tfrecords directory.')
 tf.app.flags.DEFINE_string('checkpoint_dir', 'ckpt/train/', 'The checkpoint directory.')
@@ -35,25 +35,28 @@ def evaluate(data_folder):
   with g.as_default():
     # Load dataset.
     provider = data_provider.get_provider(FLAGS.task)(data_folder)
-    print(provider)
+    num_classes = provider.num_classes
     audio, labels, num_examples = provider.get_split(FLAGS.portion, FLAGS.batch_size)
-    
+
     # Define model graph.
     with slim.arg_scope([slim.batch_norm],
                            is_training=False):
-      predictions = models.get_model(FLAGS.model)(audio)
-
+      predictions = models.get_model(FLAGS.model)(audio, num_classes=provider.num_classes)
       pred_argmax = tf.argmax(predictions, 1) 
       lab_argmax = tf.argmax(labels, 1)
 
-      not_lab_argmax = tf.argmin(labels, 1)
-      not_pred_argmax = tf.argmin(predictions, 1)
-
-      names_to_values, names_to_updates = slim.metrics.aggregate_metric_map({
-          'eval/recall1': slim.metrics.streaming_recall(pred_argmax, lab_argmax, name='recall1'),
-          'eval/recall2': slim.metrics.streaming_recall(not_pred_argmax, not_lab_argmax, name='recall2'),
+      metrics = {
           "eval/accuracy": slim.metrics.streaming_accuracy(pred_argmax, lab_argmax, name='accuracy')
-      })
+      }
+
+      for i in range(num_classes):
+          name ='eval/recall_{}'.format(i)
+          recall = slim.metrics.streaming_recall(
+                  tf.to_int64(tf.equal(pred_argmax, i)),
+                  tf.to_int64(tf.equal(lab_argmax, i)), name=name)
+          metrics[name] = recall
+
+      names_to_values, names_to_updates = slim.metrics.aggregate_metric_map(metrics)
 
       summary_ops = []
       metrics = dict()
@@ -64,7 +67,7 @@ def evaluate(data_folder):
         metrics[name] = value
 
       # Computing the unweighted average recall and add it into the summaries.
-      uar = (metrics['eval/recall1'] + metrics['eval/recall2']) / 2.
+      uar = sum([metrics['eval/recall_{}'.format(i)] for i in range(num_classes)]) / num_classes
       op = tf.summary.scalar('eval/uar', uar)
       op = tf.Print(op, [uar], 'eval/uar')
       summary_ops.append(op)
