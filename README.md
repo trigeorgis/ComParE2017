@@ -22,6 +22,10 @@ their excitation location within the upper airways. The task is to classify
 4 different types of snoring, which are defined based on the VOTE scheme.
 There are 843 snore events from 224 subjects.
 
+For questions about these models please contact:
+> g.trigeorgis@ic.ac.uk
+> panagiotis.tzirakis12@ic.ac.uk
+
 If you use this codebase in your experiments please cite:
 
 > [**Adieu Features? End-to- End Speech Emotion Recognition using a Deep Convolutional Recurrent Network**
