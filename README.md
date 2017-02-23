@@ -48,7 +48,7 @@ $ conda create -n compare python=3.5
 $ source activate compare
 ```
 
-**Step 2:** Install [TensorFlow](https://www.tensorflow.org/) following the 
+**Step 2:** Install [TensorFlow v.012](https://www.tensorflow.org/) following the 
 official [installation instructions](https://www.tensorflow.org/versions/r0.12/get_started/os_setup.html). 
 For example, for 64-bit Linux, the installation of GPU enabled, Python 3.5 TensorFlow involves:
 ```console
@@ -142,7 +142,7 @@ The training script accepts the following list of arguments.
 While training the models it is useful to run an evaluator service to do continueous 
 
 ```console
-(compare)$ python compare_eval.py --task=(addresee or cold or snore) --checkpoint_dir=ckpt/train
+(compare)$ python compare_eval.py --task=(addressee or cold or snore) --checkpoint_dir=ckpt/train
 ```
 
 TensorBoard: You can simultaneously run the training and validation. The results can be observed through TensorBoard. Simply run:
