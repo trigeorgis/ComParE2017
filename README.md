@@ -121,8 +121,7 @@ The training script accepts the following list of arguments.
                         Initial learning rate.
   --batch_size BATCH_SIZE
                         The batch size to use.
-  --num_preprocess_threads NUM_PREPROCESS_THREADS
-                        How many preprocess threads to use.
+  --num_lstm_modules    How many LSTM modules to use.
   --train_dir TRAIN_DIR
                         Directory where to write event logs and checkpoint.
   --pretrained_model_checkpoint_path PRETRAINED_MODEL_CHECKPOINT_PATH
