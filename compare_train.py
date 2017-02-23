@@ -13,7 +13,7 @@ slim = tf.contrib.slim
 FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_float('initial_learning_rate', 0.001, 'Initial learning rate.')
 tf.app.flags.DEFINE_integer('batch_size', 12, '''The batch size to use.''')
-tf.app.flags.DEFINE_integer('num_lstm_modules', 2, 'How many LSTM modules to use.')
+tf.app.flags.DEFINE_integer('num_preprocess_threads', 4, 'How many preprocess threads to use.')
 tf.app.flags.DEFINE_string('train_dir', 'ckpt/train/',
                            '''Directory where to write event logs '''
                            '''and checkpoint.''')
@@ -21,6 +21,7 @@ tf.app.flags.DEFINE_string('pretrained_model_checkpoint_path', '',
                            '''If specified, restore this pretrained model '''
                            '''before beginning any training.''')
 tf.app.flags.DEFINE_integer('max_steps', 50000, 'Number of batches to run.')
+tf.app.flags.DEFINE_integer('num_lstm_modules', 2, 'Number of LSTM modules to use.')
 tf.app.flags.DEFINE_string('train_device', '/gpu:0', 'Device to train with.')
 tf.app.flags.DEFINE_string('model', 'audio',
                            '''Which model is going to be used: audio,video, or both ''')
@@ -53,7 +54,6 @@ def train(data_folder):
     loss = slim.losses.compute_weighted_loss(loss)
     total_loss = slim.losses.get_total_loss()
     
-    
     accuracy = tf.reduce_mean(
         tf.to_float(tf.equal(tf.argmax(ground_truth, 1), tf.argmax(prediction, 1))))
     
@@ -77,7 +77,7 @@ def train(data_folder):
         train_op = slim.learning.create_train_op(total_loss,
                                                  optimizer,
                                                  summarize_gradients=True)
-
+        
         logging.set_verbosity(1)
         slim.learning.train(train_op,
                             FLAGS.train_dir,
@@ -89,4 +89,3 @@ def main(_):
 
 if __name__ == '__main__':
   tf.app.run()
-
