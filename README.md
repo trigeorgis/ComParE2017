@@ -67,7 +67,7 @@ There are two options to use the input data to run experiments.
 The first is to convert the original wave files in a format more suitable for
 TensorFlow using TF Records.
 
-> Addresee (First Challenge)
+> Addressee (First Challenge)
 ```console
 (compare)$ python data_generator.py --wave_folder=path/to/wave_folder --labels_file=path/to/labels.txt --tf_folder=tf_records 
 ```
@@ -87,7 +87,7 @@ containts a file for each dataset split (`train`, `devel`, `test`).
 
 ## 4. Training the models
 
-> Addresee (First Challenge)
+> Addressee (First Challenge)
 ```console
 (compare)$ python compare_train.py --task=addresee --train_dir=ckpt/train_addresee
 ```
