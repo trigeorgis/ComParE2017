@@ -19,6 +19,7 @@ tf.app.flags.DEFINE_string('model', 'audio','''Which model is going to be used: 
 tf.app.flags.DEFINE_string('dataset_dir', 'Addresse/tf_records', 'The tfrecords directory.')
 tf.app.flags.DEFINE_string('checkpoint_dir', 'ckpt/train/', 'The checkpoint directory.')
 tf.app.flags.DEFINE_string('log_dir', 'ckpt/eval/', 'The directory to save the event files.')
+tf.app.flags.DEFINE_integer('num_lstm_modules', 2, 'Number of LSTM modules to use.')
 tf.app.flags.DEFINE_integer('num_examples', None, 'The number of examples in the given portion.')
 tf.app.flags.DEFINE_string('eval_interval_secs', 300, 'The number of examples in the test set')
 tf.app.flags.DEFINE_string('portion', 'devel', 'The portion of the dataset to use -- `train`, `devel`, or `test`.')
@@ -41,7 +42,7 @@ def evaluate(data_folder):
     # Define model graph.
     with slim.arg_scope([slim.batch_norm],
                            is_training=False):
-      predictions = models.get_model(FLAGS.model)(audio, num_classes=provider.num_classes)
+      predictions = models.get_model(FLAGS.model)(audio, num_classes=provider.num_classes, num_lstm_modules=FLAGS.num_lstm_modules)
       pred_argmax = tf.argmax(predictions, 1) 
       lab_argmax = tf.argmax(labels, 1)
 
@@ -96,3 +97,7 @@ def main(_):
 
 if __name__ == '__main__':
     tf.app.run()
+
+
+
+
