@@ -77,16 +77,16 @@ TensorFlow using TF Records.
 
 > Addressee (First Challenge)
 ```console
-(compare)$ python data_generator.py --wave_folder=path/to/wave_folder --labels_file=ComParE2017_Addressee\* --tf_folder=tf_records 
+(compare)$ python data_generator.py --wave_folder=path/to/wave_folder --arff_path=ComParE2017_Addressee\* --tf_folder=tf_records 
 ```
 
 > Cold (Second Challenge)
 ```console
-(compare)$ python data_generator.py --wave_folder=path/to/wave_folder --labels_file=ComParE2017_Cold\* --tf_folder=tf_records 
+(compare)$ python data_generator.py --wave_folder=path/to/wave_folder --arff_path=ComParE2017_Cold\* --tf_folder=tf_records 
 ```
 > Snore (Third Challenge)
 ```console
-(compare)$ python data_generator.py --wave_folder=path/to/wave_folder --labels_file=ComParE2017_Snore.ComParE\* --tf_folder=tf_records 
+(compare)$ python data_generator.py --wave_folder=path/to/wave_folder --arff_path=ComParE2017_Snore.ComParE\* --tf_folder=tf_records 
 ```
 
 By default the `tfrecords` will be generated in a folder called `tf_records` which 
