@@ -67,16 +67,16 @@ There are two options to use the input data to run experiments.
 The first is to convert the original wave files in a format more suitable for
 TensorFlow using TF Records.
 
-> CACAC (First Challenge)
+> Addresee (First Challenge)
 ```console
 (compare)$ python data_generator.py --wave_folder=path/to/wave_folder --labels_file=path/to/labels.txt --tf_folder=tf_records 
 ```
 
-> URTIC (Second Challenge)
+> Cold (Second Challenge)
 ```console
 (compare)$ python data_generator.py --wave_folder=path/to/wave_folder --labels_file=path/to/labels.txt --tf_folder=tf_records 
 ```
-> SNORE (Third Challenge)
+> Snore (Third Challenge)
 ```console
 (compare)$ python data_generator.py --wave_folder=path/to/wave_folder --labels_file=path/to/labels.txt --tf_folder=tf_records 
 ```
@@ -96,7 +96,6 @@ containts a file for each dataset split (`train`, `devel`, `test`).
 ```console
 (compare)$ python compare_train.py --task=cold --train_dir=ckpt/train_cold
 ```
-
 
 > Snore (Third Challenge)
 ```console
@@ -133,7 +132,7 @@ The training script accepts the following list of arguments.
 While training the models it is useful to run an evaluator service to do continueous 
 
 ```console
-(compare)$ python compare_eval.py --task=(cacac or urtic or snore) --checkpoint_dir=ckpt/train
+(compare)$ python compare_eval.py --task=(addresee or cold or snore) --checkpoint_dir=ckpt/train
 ```
 
 TensorBoard: You can simultaneously run the training and validation. The results can be observed through TensorBoard. Simply run:
@@ -143,7 +142,4 @@ TensorBoard: You can simultaneously run the training and validation. The results
 ```
 
 This makes it easy to explore the graph, data, loss evolution and accuracy on the validation set. Once you have a models which performs well on the validation set (which can take between 10k-70k steps depending on the dataset) you can stop the training process.
-
-
-
 
