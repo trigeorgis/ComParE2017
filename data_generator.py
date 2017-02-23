@@ -15,23 +15,37 @@ def get_labels(label_file):
   """Parses the labels.txt file. 
 
   Args:
-      label_file: The path of the labels.txt file.
+      label_file: A path glob which contains the arff files with the labels.
   Returns:
       A dictionary for the labels of each fold.
   """
-  with open(str(label_file)) as f:
-    raw_labels = [np.array(x.strip().split(';'))[[0, 1, -1]] for x in f.readlines()]
-
-  class_names = np.unique([g for _, _, g in raw_labels])
-
   labels = {}
-  for name, portion, g in raw_labels:
-      class_id = np.where(g == class_names)[0][0]
-      labels.setdefault(portion, []).append((name, int(class_id)))
+  class_names = None
+  label_path = Path(label_path)
 
-  return labels
+  for path in label_path.parent.glob(label_path.name):
+      portion = path.suffixes[-2][1:]
+  
+      with open(str(path)) as f:
+          gts = [np.array(l.strip().split(','))[[0, -1]] for l in f.readlines() if l[0] != '@' and 'wav' in l]
+  
+      if class_names is None:
+          class_names = np.unique([g for _, g in gts])
+  
+      for name, class_name in gts:
+  
+          # No labels exist for this dataset.
+          if '?' in class_name:
+              print('No labels exist for the {} portion'.format(portion))
+              break
+  
+          class_id = np.where(class_name == class_names)[0][0]
+          labels.setdefault(portion, []).append((name.replace("'", ""), int(class_id)))
 
-def get_audio(wav_file, root_dir):
+  rerturn labels
+
+
+def read_wave(path):
   """Reads a wav file and splits it in chunks of 40ms. 
   Pads with zeros if duration does not fit exactly the 40ms chunks.
   Assumptions: 
@@ -40,12 +54,11 @@ def get_audio(wav_file, root_dir):
   
   Args:
       wav_file: The name of the wav file.
-      root_dir: The directory were the wav file is.
   Returns:
       A data array, where each row corresponds to 40ms.
   """
 
-  fp = wave.open(str(root_dir / wav_file))
+  fp = wave.open(str(path))
   num_of_channels = fp.getnchannels()
   fps = fp.getframerate()
     
@@ -104,7 +117,7 @@ def serialize_sample(writer, sample_data, root_dir, upsample=False):
 
   for i, (wav_file, label) in enumerate(sample_data):
 
-    audio = get_audio(wav_file, root_dir)
+    audio = read_wave(root_dir / wav_file)
     example = tf.train.Example(features=tf.train.Features(feature={
                 'label': _int_feauture(label),
                 'raw_audio': _bytes_feauture(audio.astype(np.float32).tobytes()),
@@ -117,13 +130,13 @@ def main(data_folder, labels_file, tfrecords_folder):
 
   root_dir = Path(data_folder)
   labels = get_labels(labels_file)
-  for portion in ['train', 'devel', 'test']:
+  for portion in ['train', 'devel']:
     print('Creating tfrecords for [{}].'.format(portion))
     writer = tf.python_io.TFRecordWriter(
         (Path(tfrecords_folder) / '{}.tfrecords'.format(portion)
     ).as_posix())
     
-    serialize_sample(writer, labels[portion], root_dir, upsample='train' in portion or 'devel' in portion)
+    serialize_sample(writer, labels[portion], root_dir, upsample='train' in portion)
     writer.close()
 
 if __name__ == '__main__':

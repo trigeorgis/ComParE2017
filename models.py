@@ -3,10 +3,11 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 import tensorflow as tf
+import numpy as np
 
 slim = tf.contrib.slim
 
-def recurrent_model(net, hidden_units=64, num_classes=2):
+def recurrent_model(net, hidden_units=64, num_classes=2, num_lstm_modules=2):
   """Adds the LSTM network on top of the spatial audio model.
 
   Args:
@@ -24,7 +25,8 @@ def recurrent_model(net, hidden_units=64, num_classes=2):
                                  cell_clip=100,
                                  state_is_tuple=True)
 
-  stacked_lstm = tf.nn.rnn_cell.MultiRNNCell([lstm] * 2, state_is_tuple=True)
+  stacked_lstm = tf.nn.rnn_cell.MultiRNNCell(
+      [lstm] * num_lstm_modules, state_is_tuple=True)
 
 
   outputs, _ = tf.nn.dynamic_rnn(stacked_lstm, net, dtype=tf.float32)
@@ -37,7 +39,7 @@ def recurrent_model(net, hidden_units=64, num_classes=2):
   return tf.reshape(prediction, (batch_size, num_classes))
 
 
-def audio_model(inputs, conv_filters=32):
+def audio_model(inputs, conv_filters=32, num_layers=8):
     """Creates the audio model.
 
     Args:
@@ -62,7 +64,7 @@ def audio_model(inputs, conv_filters=32):
     
     with slim.arg_scope([slim.layers.conv2d],
                          padding='SAME', activation_fn=slim.batch_norm):
-        for i in range(8):
+        for i in range(num_layers):
             net = slim.layers.conv2d(net, conv_filters, (1, 40))
 
             net = tf.nn.max_pool(
@@ -72,7 +74,8 @@ def audio_model(inputs, conv_filters=32):
                 padding='SAME',
                 name='pool')
            
-    net = tf.reshape(net, (batch_size, seq_length, 2 * 32))
+    num_features = np.multiply(*net.get_shape().as_list()[-2:])
+    net = tf.reshape(net, (batch_size, seq_length, num_features))
     return net
 
 
@@ -94,7 +97,7 @@ def get_model(name):
     raise ValueError('Requested name [{}] not a valid model'.format(name))
 
   def wrapper(*args, **kwargs):
-    return recurrent_model(model(*args, **kwargs))
+    return recurrent_model(model(*args), **kwargs)
 
   return wrapper
 

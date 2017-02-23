@@ -10,6 +10,8 @@ slim = tf.contrib.slim
 
 
 class Dataset:
+    num_classes = 2
+
     def __init__(self, dataset_dir):
         self.dataset_dir = dataset_dir
         
@@ -62,7 +64,7 @@ class Dataset:
                                     capacity=1000, dynamic_pad=True)
 
       frames = tf.reshape(frames, (batch_size, -1, 640))
-      labels = slim.one_hot_encoding(labels, 2)
+      labels = slim.one_hot_encoding(labels, self.num_classes)
 
       return frames, labels, sum(self._split_to_num_samples[name] for name in split_name.split(','))
 
@@ -83,6 +85,15 @@ class URTICProvider(Dataset):
     }
 
 
+class SNOREProvider(Dataset):
+    num_classes = 4
+    _split_to_num_samples = {
+      'test': 500, 
+      'devel': 644, 
+      'train': 500
+    }
+
+
 def get_provider(name):
   """Returns the provider with the given name
 
@@ -92,7 +103,8 @@ def get_provider(name):
       The requested provider.
   """
 
-  name_to_class = {'cacac': CACACProvider, 'urtic': URTICProvider}
+  name_to_class = {'cacac': CACACProvider, 'urtic': URTICProvider,
+                   'snore': SNOREProvider}
 
   if name in name_to_class:
     provider = name_to_class[name]

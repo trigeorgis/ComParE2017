@@ -1,5 +1,5 @@
-from __future__ import absolute_import
 from __future__ import division
+from __future__ import absolute_import
 from __future__ import print_function
 
 import tensorflow as tf
@@ -13,8 +13,7 @@ slim = tf.contrib.slim
 FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_float('initial_learning_rate', 0.001, 'Initial learning rate.')
 tf.app.flags.DEFINE_float('num_epochs_per_decay', 5.0, 'Epochs after which learning rate decays.')
-tf.app.flags.DEFINE_float('learning_rate_decay_factor', 0.97, 'Learning rate decay factor.')
-tf.app.flags.DEFINE_integer('batch_size', 32, '''The batch size to use.''')
+tf.app.flags.DEFINE_integer('batch_size', 12, '''The batch size to use.''')
 tf.app.flags.DEFINE_integer('num_preprocess_threads', 4, 'How many preprocess threads to use.')
 tf.app.flags.DEFINE_string('train_dir', 'ckpt/train/',
                            '''Directory where to write event logs '''
@@ -22,13 +21,13 @@ tf.app.flags.DEFINE_string('train_dir', 'ckpt/train/',
 tf.app.flags.DEFINE_string('pretrained_model_checkpoint_path', '',
                            '''If specified, restore this pretrained model '''
                            '''before beginning any training.''')
-tf.app.flags.DEFINE_integer('max_steps', 10000, 'Number of batches to run.')
+tf.app.flags.DEFINE_integer('max_steps', 50000, 'Number of batches to run.')
 tf.app.flags.DEFINE_string('train_device', '/gpu:0', 'Device to train with.')
 tf.app.flags.DEFINE_string('model', 'audio',
                            '''Which model is going to be used: audio,video, or both ''')
 tf.app.flags.DEFINE_string('dataset_dir', 'urtic', 'The tfrecords directory.')
-tf.app.flags.DEFINE_string('task', 'urtic', 'The task to execute. `cacac` or `urtic`')
-tf.app.flags.DEFINE_string('portion', 'train,devel', 'Portion to use for training.')
+tf.app.flags.DEFINE_string('task', 'urtic', 'The task to execute. `cacac`, `urtic`, or `snore`')
+tf.app.flags.DEFINE_string('portion', 'train', 'Portion to use for training.')
 
 
 def train(data_folder):
@@ -41,13 +40,14 @@ def train(data_folder):
   g = tf.Graph()
   with g.as_default():
     # Load dataset.
-    audio, ground_truth, _ = data_provider.get_provider(FLAGS.task)(
+    provider = data_provider.get_provider(FLAGS.task)
+    audio, ground_truth, _ = provider(
         data_folder).get_split(FLAGS.portion, FLAGS.batch_size)
 
     # Define model graph.
     with slim.arg_scope([slim.batch_norm, slim.layers.dropout],
                         is_training=True):
-        prediction = models.get_model(FLAGS.model)(audio)
+        prediction = models.get_model(FLAGS.model)(audio, num_classes=provider.num_classes)
 
     loss = tf.nn.weighted_cross_entropy_with_logits(prediction, ground_truth,
                                                                 pos_weight=1)
