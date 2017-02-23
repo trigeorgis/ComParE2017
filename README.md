@@ -1,7 +1,7 @@
 # Interspeech 2017 - Computational Paralinguistics Challenge (ComParE)
 
 This package provides training and evaluation code for the end-to-end baseline
-for the 1st and 2nd ComParE challenge.
+for the 2017 ComParE challenges.
 
 The 1st challenge comprises recordings of child/adult and adult/adult
 conversations – the task is to determine the addressee (child or adult
@@ -16,6 +16,11 @@ determine whether the person speaking is cold or not.
 The number of actual speakers is 630 (382 males, 248 females), with age 
 ranging from 12 to 84 years old. Overall, the corpus consists of ~11,000 
 (11283) audio recordings.
+
+The 3rd challenge comprises recordings of snore sounds of individuals by 
+their excitation location within the upper airways. The task is to classify 
+4 different types of snoring, which are defined based on the VOTE scheme.
+There are 843 snore events from 224 subjects.
 
 1. [Installation](#installation)
 2. [Methodology](#methodology)
@@ -42,14 +47,14 @@ For example, for 64-bit Linux, the installation of GPU enabled, Python 3.5 Tenso
 
 **Step 4:** Clone and install the `compare` project as:
 ```console
-(compare)$ git clone git@github.com:trigeorgis/Interspeech2017.git
+(compare)$ git clone git@github.com:trigeorgis/ComParE2017.git
 ```
 
 ## 2. Methodology
 
 We use a convolutional-recurrent architecture which is comprised of convolutional networks
 which extract features of the raw waveform, and an LSTM network which takes these features
-and classifies the whole sequence as one of the two classes (child/adult or adult/adult or cold/not_cold).
+and classifies the whole sequence as one of the classes in the datasets. 
 
 The waveform is split in 40ms chunks and for each of these we extract features and then 
 we use a recurrent network to traverse the whole sequence. At the end we are left with 
@@ -62,14 +67,18 @@ There are two options to use the input data to run experiments.
 The first is to convert the original wave files in a format more suitable for
 TensorFlow using TF Records.
 
-> CACAC (First Challenge)
+> Addresee (First Challenge)
 ```console
-(compare)$ python data_generator.py --wave_folder=path/to/wave_folder --labels_file=path/to/labels.txt --tf_folder=tf_records --class_name=CDS`
+(compare)$ python data_generator.py --wave_folder=path/to/wave_folder --labels_file=path/to/labels.txt --tf_folder=tf_records 
 ```
 
-> URTIC (Second Challenge)
+> Cold (Second Challenge)
 ```console
-(compare)$ python data_generator.py --wave_folder=path/to/wave_folder --labels_file=path/to/labels.txt --tf_folder=tf_records --class_name=cold
+(compare)$ python data_generator.py --wave_folder=path/to/wave_folder --labels_file=path/to/labels.txt --tf_folder=tf_records 
+```
+> Snore (Third Challenge)
+```console
+(compare)$ python data_generator.py --wave_folder=path/to/wave_folder --labels_file=path/to/labels.txt --tf_folder=tf_records 
 ```
 
 By default the `tfrecords` will be generated in a folder called `tf_records` which 
@@ -78,21 +87,59 @@ containts a file for each dataset split (`train`, `devel`, `test`).
 
 ## 4. Training the models
 
-
-> CACAC (First Challenge)
+> Addresee (First Challenge)
 ```console
-(compare)$ python compare_train.py --task=cacac --train_dir=ckpt/train_cacac
+(compare)$ python compare_train.py --task=addresee --train_dir=ckpt/train_addresee
 ```
 
-> URTIC (Second Challenge)
+> Cold (Second Challenge)
 ```console
-(compare)$ python compare_train.py --task=urtic --train_dir=ckpt/train_urtic
+(compare)$ python compare_train.py --task=cold --train_dir=ckpt/train_cold
+```
+
+> Snore (Third Challenge)
+```console
+(compare)$ python compare_train.py --task=snore --train_dir=ckpt/train_snore
+```
+
+The training script accepts the following list of arguments.
+
+```
+  --initial_learning_rate INITIAL_LEARNING_RATE
+                        Initial learning rate.
+  --batch_size BATCH_SIZE
+                        The batch size to use.
+  --num_preprocess_threads NUM_PREPROCESS_THREADS
+                        How many preprocess threads to use.
+  --train_dir TRAIN_DIR
+                        Directory where to write event logs and checkpoint.
+  --pretrained_model_checkpoint_path PRETRAINED_MODEL_CHECKPOINT_PATH
+                        If specified, restore this pretrained model before
+                        beginning any training.
+  --max_steps MAX_STEPS
+                        Number of batches to run.
+  --train_device TRAIN_DEVICE
+                        Device to train with.
+  --model MODEL         Which model is going to be used: audio,video, or both
+  --dataset_dir DATASET_DIR
+                        The tfrecords directory.
+  --task TASK           The task to execute. `addressee`, `cold`, or `snore`.
+  --portion PORTION     Dataset portion to use for training (train or devel).
 ```
 
 ## 5. Evaluating the models
 
+While training the models it is useful to run an evaluator service to do continueous 
+
 ```console
-(compare)$ python compare_eval.py --task=(cacac or urtic) --checkpoint_dir=ckpt/train
+(compare)$ python compare_eval.py --task=(addresee or cold or snore) --checkpoint_dir=ckpt/train
 ```
 
+TensorBoard: You can simultaneously run the training and validation. The results can be observed through TensorBoard. Simply run:
+
+```
+(compare)$ tensorboard --logdir=ckpt
+```
+
+This makes it easy to explore the graph, data, loss evolution and accuracy on the validation set. Once you have a models which performs well on the validation set (which can take between 10k-70k steps depending on the dataset) you can stop the training process.
 
