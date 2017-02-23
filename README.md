@@ -23,7 +23,7 @@ their excitation location within the upper airways. The task is to classify
 There are 843 snore events from 224 subjects.
 
 For questions about these models please contact:
-[George Trigeorgis](g.trigeorgis@ic.ac.uk)
+[George Trigeorgis](g.trigeorgis@ic.ac.uk) or
 [Panayiotis Tzirakis](panagiotis.tzirakis12@ic.ac.uk)
 
 If you use this codebase in your experiments please cite:
