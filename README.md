@@ -24,10 +24,10 @@ There are 843 snore events from 224 subjects.
 
 If you use this codebase in your experiments please cite:
 
-> [**Adieu Features? End-to- End Speech Emotion Recognition using a Deep Convolutional Recurrent Network**
+> [**Adieu Features? End-to- End Speech Emotion Recognition using a Deep Convolutional Recurrent Network**]
 
 G. Trigeorgis, F. Ringeval, R. B. , E. Marchi, M. Nicoalou a., B. Schuller, S. Zafeiriou. 
-*ICASSP. March 2016.*]
+*ICASSP. March 2016.*
 (https://ibug.doc.ic.ac.uk/media/uploads/documents/learning_audio_paralinguistics_from_the_raw_waveform.pdf)
 
 1. [Installation](#installation)
