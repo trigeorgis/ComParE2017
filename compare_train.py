@@ -13,7 +13,7 @@ slim = tf.contrib.slim
 FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_float('initial_learning_rate', 0.001, 'Initial learning rate.')
 tf.app.flags.DEFINE_integer('batch_size', 12, '''The batch size to use.''')
-tf.app.flags.DEFINE_integer('num_preprocess_threads', 4, 'How many preprocess threads to use.')
+tf.app.flags.DEFINE_integer('num_lstm_modules', 2, 'How many LSTM modules to use.')
 tf.app.flags.DEFINE_string('train_dir', 'ckpt/train/',
                            '''Directory where to write event logs '''
                            '''and checkpoint.''')
@@ -46,7 +46,7 @@ def train(data_folder):
     # Define model graph.
     with slim.arg_scope([slim.batch_norm, slim.layers.dropout],
                         is_training=True):
-        prediction = models.get_model(FLAGS.model)(audio, num_classes=provider.num_classes)
+        prediction = models.get_model(FLAGS.model)(audio, num_classes=provider.num_classes, num_lstm_modules=FLAGS.num_lstm_modules)
 
     loss = tf.nn.weighted_cross_entropy_with_logits(prediction, ground_truth,
                                                                 pos_weight=1)
