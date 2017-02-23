@@ -1,4 +1,4 @@
-[[#]] Interspeech 2017 - Computational Paralinguistics Challenge (ComParE)
+# Interspeech 2017 - Computational Paralinguistics Challenge (ComParE)
 
 This package provides training and evaluation code for the end-to-end baseline
 for the 2017 ComParE challenges.
@@ -22,10 +22,21 @@ their excitation location within the upper airways. The task is to classify
 4 different types of snoring, which are defined based on the VOTE scheme.
 There are 843 snore events from 224 subjects.
 
+If you use this codebase in your experiments please cite:
+
+> [**Adieu Features? End-to- End Speech Emotion Recognition using a Deep Convolutional Recurrent Network**
+G. Trigeorgis, F. Ringeval, R. B. , E. Marchi, M. Nicoalou a., B. Schuller, S. Zafeiriou. 
+*ICASSP. March 2016.*](https://ibug.doc.ic.ac.uk/media/uploads/documents/learning_audio_paralinguistics_from_the_raw_waveform.pdf)
+
+
+
+```
+
 1. [Installation](#installation)
 2. [Methodology](#methodology)
 3. [Running](#running)
 4. [Results](#results)
+5. [Evaluation](#evaluation)
 
 ## 1. Installation
 We highly recommended to use [conda](http://conda.pydata.org/miniconda.html) as your Python distribution.
@@ -142,4 +153,5 @@ TensorBoard: You can simultaneously run the training and validation. The results
 ```
 
 This makes it easy to explore the graph, data, loss evolution and accuracy on the validation set. Once you have a models which performs well on the validation set (which can take between 10k-70k steps depending on the dataset) you can stop the training process.
+
 
