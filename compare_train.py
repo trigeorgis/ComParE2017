@@ -12,7 +12,6 @@ slim = tf.contrib.slim
 
 FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_float('initial_learning_rate', 0.001, 'Initial learning rate.')
-tf.app.flags.DEFINE_float('num_epochs_per_decay', 5.0, 'Epochs after which learning rate decays.')
 tf.app.flags.DEFINE_integer('batch_size', 12, '''The batch size to use.''')
 tf.app.flags.DEFINE_integer('num_preprocess_threads', 4, 'How many preprocess threads to use.')
 tf.app.flags.DEFINE_string('train_dir', 'ckpt/train/',
@@ -26,7 +25,7 @@ tf.app.flags.DEFINE_string('train_device', '/gpu:0', 'Device to train with.')
 tf.app.flags.DEFINE_string('model', 'audio',
                            '''Which model is going to be used: audio,video, or both ''')
 tf.app.flags.DEFINE_string('dataset_dir', 'urtic', 'The tfrecords directory.')
-tf.app.flags.DEFINE_string('task', 'urtic', 'The task to execute. `cacac`, `urtic`, or `snore`')
+tf.app.flags.DEFINE_string('task', 'addressee', 'The task to execute. `addressee`, `cold`, or `snore`')
 tf.app.flags.DEFINE_string('portion', 'train', 'Portion to use for training.')
 
 
