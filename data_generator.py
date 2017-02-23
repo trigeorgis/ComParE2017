@@ -11,20 +11,22 @@ tf.app.flags.DEFINE_string('tf_folder', 'tf_records', 'The folder to write the t
 
 __signal_framerate = 16000
 
-def get_labels(label_file):
-  """Parses the labels.txt file. 
+def get_labels(label_path):
+  """Parses the data arff files to extract the labels 
 
   Args:
-      label_file: A path glob which contains the arff files with the labels.
+      label_path: A path glob which contains the arff files with the labels.
   Returns:
       A dictionary for the labels of each fold.
   """
   labels = {}
   class_names = None
   label_path = Path(label_path)
+  print('Extracting labels from {}'.format(label_path))
 
   for path in label_path.parent.glob(label_path.name):
       portion = path.suffixes[-2][1:]
+      print('Processing {}'.format(path))
   
       with open(str(path)) as f:
           gts = [np.array(l.strip().split(','))[[0, -1]] for l in f.readlines() if l[0] != '@' and 'wav' in l]
@@ -42,7 +44,7 @@ def get_labels(label_file):
           class_id = np.where(class_name == class_names)[0][0]
           labels.setdefault(portion, []).append((name.replace("'", ""), int(class_id)))
 
-  rerturn labels
+  return labels
 
 
 def read_wave(path):
@@ -132,6 +134,9 @@ def main(data_folder, labels_file, tfrecords_folder):
   labels = get_labels(labels_file)
   for portion in ['train', 'devel']:
     print('Creating tfrecords for [{}].'.format(portion))
+    if not Path(tfrecords_folder).exists():
+        Path(tfrecords_folder).mkdir()
+
     writer = tf.python_io.TFRecordWriter(
         (Path(tfrecords_folder) / '{}.tfrecords'.format(portion)
     ).as_posix())
