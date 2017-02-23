@@ -29,10 +29,6 @@ G. Trigeorgis, F. Ringeval, R. B. , E. Marchi, M. Nicoalou a., B. Schuller, S. Z
 *ICASSP. March 2016.*]
 (https://ibug.doc.ic.ac.uk/media/uploads/documents/learning_audio_paralinguistics_from_the_raw_waveform.pdf)
 
-
-
-```
-
 1. [Installation](#installation)
 2. [Methodology](#methodology)
 3. [Running](#running)
