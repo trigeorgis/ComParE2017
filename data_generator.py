@@ -145,4 +145,4 @@ def main(data_folder, labels_file, tfrecords_folder):
     writer.close()
 
 if __name__ == '__main__':
-  main(FLAGS.wave_folder, FLAGS.labels_file, FLAGS.tf_folder)
+  main(FLAGS.wave_folder, FLAGS.arff_path, FLAGS.tf_folder)
