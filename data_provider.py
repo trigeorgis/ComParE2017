@@ -70,6 +70,7 @@ class Dataset:
 
     
 class AddresseeProvider(Dataset):
+    num_classes = 2
     _split_to_num_samples = {
       'test': 3594,
       'devel': 3550,
@@ -78,6 +79,7 @@ class AddresseeProvider(Dataset):
 
     
 class ColdProvider(Dataset):
+    num_classes = 2
     _split_to_num_samples = {
       'test': 9551, 
       'devel': 9596, 
@@ -103,7 +105,7 @@ def get_provider(name):
       The requested provider.
   """
 
-  name_to_class = {'addresee': AddresseeProvider, 'cold': ColdProvider,
+  name_to_class = {'addressee': AddresseeProvider, 'cold': ColdProvider,
                    'snore': SnoreProvider}
 
   if name in name_to_class:

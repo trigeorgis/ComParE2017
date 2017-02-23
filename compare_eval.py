@@ -16,13 +16,13 @@ slim = tf.contrib.slim
 FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_integer('batch_size', 1, '''The batch size to use.''')
 tf.app.flags.DEFINE_string('model', 'audio','''Which model is going to be used: audio, video, or both ''')
-tf.app.flags.DEFINE_string('dataset_dir', '/vol/atlas/homes/pt511/db/URTIC/tf_records', 'The tfrecords directory.')
+tf.app.flags.DEFINE_string('dataset_dir', 'Addresse/tf_records', 'The tfrecords directory.')
 tf.app.flags.DEFINE_string('checkpoint_dir', 'ckpt/train/', 'The checkpoint directory.')
 tf.app.flags.DEFINE_string('log_dir', 'ckpt/eval/', 'The directory to save the event files.')
 tf.app.flags.DEFINE_integer('num_examples', None, 'The number of examples in the given portion.')
 tf.app.flags.DEFINE_string('eval_interval_secs', 300, 'The number of examples in the test set')
 tf.app.flags.DEFINE_string('portion', 'devel', 'The portion of the dataset to use -- `train`, `devel`, or `test`.')
-tf.app.flags.DEFINE_string('task', 'urtic', 'The task to execute. `cacac` or `urtic`')
+tf.app.flags.DEFINE_string('task', 'addressee', 'The task to execute. `addressee`, `cold` or `snore`')
 
 def evaluate(data_folder):
   """Evaluates the audio model.
