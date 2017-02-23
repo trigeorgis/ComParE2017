@@ -24,7 +24,7 @@ tf.app.flags.DEFINE_integer('max_steps', 50000, 'Number of batches to run.')
 tf.app.flags.DEFINE_string('train_device', '/gpu:0', 'Device to train with.')
 tf.app.flags.DEFINE_string('model', 'audio',
                            '''Which model is going to be used: audio,video, or both ''')
-tf.app.flags.DEFINE_string('dataset_dir', 'urtic', 'The tfrecords directory.')
+tf.app.flags.DEFINE_string('dataset_dir', 'tfrecords', 'The tfrecords directory.')
 tf.app.flags.DEFINE_string('task', 'addressee', 'The task to execute. `addressee`, `cold`, or `snore`')
 tf.app.flags.DEFINE_string('portion', 'train', 'Portion to use for training.')
 
