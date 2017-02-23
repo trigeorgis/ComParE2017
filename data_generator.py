@@ -6,7 +6,7 @@ from pathlib import Path
 
 FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_string('wave_folder', 'wav/', 'The folder that contains the wav files.')
-tf.app.flags.DEFINE_string('labels_file', 'labels.txt', 'The path to the labels.txt file.')
+tf.app.flags.DEFINE_string('arff_path', 'ComPaRe*arff', 'The glob for all the arff files of the datset.')
 tf.app.flags.DEFINE_string('tf_folder', 'tf_records', 'The folder to write the tf records.')
 
 __signal_framerate = 16000
