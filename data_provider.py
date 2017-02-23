@@ -69,7 +69,7 @@ class Dataset:
       return frames, labels, sum(self._split_to_num_samples[name] for name in split_name.split(','))
 
     
-class CACACProvider(Dataset):
+class AddresseeProvider(Dataset):
     _split_to_num_samples = {
       'test': 3594,
       'devel': 3550,
@@ -77,7 +77,7 @@ class CACACProvider(Dataset):
     }
 
     
-class URTICProvider(Dataset):
+class ColdProvider(Dataset):
     _split_to_num_samples = {
       'test': 9551, 
       'devel': 9596, 
@@ -85,7 +85,7 @@ class URTICProvider(Dataset):
     }
 
 
-class SNOREProvider(Dataset):
+class SnoreProvider(Dataset):
     num_classes = 4
     _split_to_num_samples = {
       'test': 500, 
@@ -103,8 +103,8 @@ def get_provider(name):
       The requested provider.
   """
 
-  name_to_class = {'cacac': CACACProvider, 'urtic': URTICProvider,
-                   'snore': SNOREProvider}
+  name_to_class = {'addresee': AddresseeProvider, 'cold': ColdProvider,
+                   'snore': SnoreProvider}
 
   if name in name_to_class:
     provider = name_to_class[name]
